@@ -58,7 +58,8 @@ class Easy_Symlinks_Functions {
 	public function get_symlinks() {
 		$symlinklist = '';
 		$symlinklist = maybe_unserialize( get_option( 'caes_symlink_list' ) );
-		if ( null === $symlinklist ) {
+
+		if ( ( null === $symlinklist ) || ( false === $symlinklist ) ) {
 			return null;
 		} else {
 			return $symlinklist;
@@ -74,6 +75,7 @@ class Easy_Symlinks_Functions {
 	public function display_symlinks() {
 		$symlinks     = $this->get_symlinks();
 		$symlinkslist = '';
+		// Remove this.
 		if ( $symlinks ) {
 			foreach ( $symlinks as $symlink ) {
 				// add validity check here if the existing symlinks are good

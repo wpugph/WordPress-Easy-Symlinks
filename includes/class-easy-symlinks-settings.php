@@ -182,6 +182,13 @@ class Easy_Symlinks_Settings {
 		$symlinks       = $links->display_symlinks();
 		$symlinks_array = $links->get_symlinks();
 
+		if ( null === $symlinks_array ) {
+			$symlinks_array = array();
+			$desc           = 'No symlinks yet, please add one before you can delete.';
+		} else {
+			$desc = 'Select the symlink pair that you want to delete;';
+		}
+
 		$settings['add'] = array(
 			'title'       => __( 'Add Symlinks', 'easy-symlinks' ),
 			'description' => '',
@@ -207,7 +214,7 @@ class Easy_Symlinks_Settings {
 
 		$settings['delete'] = array(
 			'title'       => __( 'Delete Symlinks', 'easy-symlinks' ),
-			'description' => __( 'Select the symlink pair that you want  to delete', 'easy-symlinks' ),
+			'description' => $desc,
 			'fields'      => array(
 				array(
 					'id'          => 'symlink_list_lastdelete',
