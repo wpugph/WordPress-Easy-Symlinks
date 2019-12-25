@@ -411,7 +411,10 @@ class Easy_Symlinks_Settings {
 		if ( $writestatus['status'] ) {
 			echo wp_kses( $html, $sanitisation->allowed_htmls );
 		} else {
-			echo '<div>' . esc_html( $writestatus['status'] ) . '</div>';
+			echo '<div class="wrap" id="' . esc_html( $this->parent->token ) . '_settings">' . "\n";
+			echo '<h2>' . esc_html( __( 'Easy Symlinks Management', 'easy-symlinks' ) ) . '</h2>' . "\n";
+			echo '<div class="notice notice-error settings-error">' . esc_html( $writestatus['error'] ) . '</div>';
+			echo '</div>';
 		}
 	}
 
