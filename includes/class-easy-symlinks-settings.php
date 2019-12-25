@@ -242,14 +242,10 @@ class Easy_Symlinks_Settings {
 			// Check posted/selected tab.
 			$current_section = '';
 
-			// var_dump( $_REQUEST );
-			// $test = wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['caes_nonce'], 'caes_nonce' ) ) );
-			// $test2 = wp_verify_nonce( $_GET['caes_nonce'], 'caes_nonce' );
-			// var_dump( $test2 );
-			// var_dump( $test );
+			$nonce = sanitize_text_field( wp_create_nonce( 'caes_nonce' ) );
 
 			if ( isset( $_POST['tab'] ) ) {
-				if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['tab'], 'caes_nonce' ) ) ) ) {
+				if ( wp_verify_nonce( $nonce, 'caes_nonce' ) ) {
 					$current_section = sanitize_text_field( wp_unslash( $_POST['tab'] ) );
 				}
 			} else {

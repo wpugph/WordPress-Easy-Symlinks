@@ -8,11 +8,17 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Easy symlinking tool in WP. This can only track symlinks created within the application and excludes symlinks created from the filesystem and command line. Best used in Pantheon dev environments in SFTP mode.
+Easy symlinking tool in WP. Best used for non-command line users. This can only track symlinks created within the application and excludes symlinks created from the filesystem and command line. Best used in Pantheon dev environments in SFTP mode.
 
 == Description ==
 
-Easy symlinking tool in WP. This can only track symlinks created within the application and excludes symlinks created from the filesystem and command line. Best used in Pantheon dev environments in SFTP mode.
+Easy symlinking tool in WP. Best used for non-command line users.
+
+Add symlinks by going to your WP admin dashboard > Settings > Easy Symlinks
+
+You can refer here for the common symlink configurations: https://wordpress.org/support/topic/list-of-common-symlinks-in-pantheon
+
+This plugin can only track symlinks created within the application and excludes symlinks created from the filesystem and command line. Best used in Pantheon dev or multidev environments in SFTP mode.
 
 == Installation ==
 
@@ -24,12 +30,13 @@ Installing "Easy Symlinks" can be done either by searching for "Easy Symlinks" v
 
 == Changelog ==
 
-= 1.0.0 =
-* 2019-12-28
-* Initial release
+= 1.0.0beta =
+* 2019-12-24
+* Initial release https://github.com/wpugph/WordPress-Easy-Symlinks
 
-= 1.0.1 =
-* 2019-12-30
+= 1.0.0 =
+* 2019-12-26
+* Release https://wordpress.org/plugins/easy-symlinks
 * Improved deleting symlinks UI 
 * Only one symlink is deleted at a time
 * Added checks in Pantheon and writable filesystem
