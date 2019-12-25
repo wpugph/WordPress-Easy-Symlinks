@@ -242,8 +242,14 @@ class Easy_Symlinks_Settings {
 			// Check posted/selected tab.
 			$current_section = '';
 
+			// var_dump( $_REQUEST );
+			// $test = wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['caes_nonce'], 'caes_nonce' ) ) );
+			// $test2 = wp_verify_nonce( $_GET['caes_nonce'], 'caes_nonce' );
+			// var_dump( $test2 );
+			// var_dump( $test );
+
 			if ( isset( $_POST['tab'] ) ) {
-				if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['tab'] ) ) ) ) {
+				if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['tab'], 'caes_nonce' ) ) ) ) {
 					$current_section = sanitize_text_field( wp_unslash( $_POST['tab'] ) );
 				}
 			} else {
@@ -316,25 +322,21 @@ class Easy_Symlinks_Settings {
 		$links = new Easy_Symlinks_Functions();
 
 		// Build page HTML.
-		$nonce     = sanitize_text_field( wp_create_nonce( plugin_basename( __FILE__ ) ) );
+		$nonce     = sanitize_text_field( wp_create_nonce( 'caes_nonce' ) );
 		$html      = '<div class="wrap" id="' . $this->parent->token . '_settings">' . "\n";
 			$html .= '<h2>' . __( 'Easy Symlinks Management', 'easy-symlinks' ) . '</h2>' . "\n";
 
 			$tab = '';
 
-		if ( ! isset( $_GET['caes_nonce'] ) ) {
-			if ( isset( $_GET['page'] ) ) {
-				if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) ) {
-					if ( isset( $_GET['tab'] ) && sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
-						$tab .= sanitize_text_field( wp_unslash( $_GET['tab'] ) );
-					}
-				}
+		// Proper nonce handling.
+		if ( isset( $_GET['caes_nonce'] ) ) {
+			$val3 = wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['caes_nonce'] ) ), 'caes_nonce' );
+			if ( isset( $_GET['tab'] ) && sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
+				$tab .= sanitize_text_field( wp_unslash( $_GET['tab'] ) );
 			}
 		} else {
-			if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['caes_nonce'] ) ) ) ) {
-				if ( isset( $_GET['tab'] ) && sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
-					$tab .= sanitize_text_field( wp_unslash( $_GET['tab'] ) );
-				}
+			if ( isset( $_GET['tab'] ) && sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
+				$tab .= sanitize_text_field( wp_unslash( $_GET['tab'] ) );
 			}
 		}
 
@@ -368,7 +370,8 @@ class Easy_Symlinks_Settings {
 				// Set tab link.
 				$tab_link = add_query_arg(
 					array(
-						'tab' => $section,
+						'tab'        => $section,
+						'caes_nonce' => $nonce,
 						// add nonce validation here.
 					)
 				);

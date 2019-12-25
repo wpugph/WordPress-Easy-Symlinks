@@ -119,9 +119,10 @@ class Easy_Symlinks {
 	 */
 	public function savenew() {
 		$links = new Easy_Symlinks_Functions();
-		$nonce = sanitize_text_field( wp_create_nonce( plugin_basename( __FILE__ ) ) );
+		$nonce = sanitize_text_field( wp_create_nonce( 'savenew' ) );
+
 		if ( isset( $_GET['settings-updated'] ) ) {
-			if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $nonce ) ) ) ) {
+			if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $nonce, 'savenew' ) ) ) ) {
 				$updated = sanitize_text_field( wp_unslash( $_GET['settings-updated'] ) );
 				if ( isset( $_GET['tab'] ) ) {
 					$tab = sanitize_text_field( wp_unslash( $_GET['tab'] ) );
@@ -144,10 +145,10 @@ class Easy_Symlinks {
 	 */
 	public function deletelink() {
 		$links = new Easy_Symlinks_Functions();
-		$nonce = wp_verify_nonce( sanitize_text_field( wp_unslash( plugin_basename( __FILE__ ) ) ) );
+		$nonce = sanitize_text_field( wp_create_nonce( 'deletelink' ) );
 
 		if ( isset( $_GET['settings-updated'] ) ) {
-			if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $nonce ) ) ) ) {
+			if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $nonce, 'deletelink' ) ) ) ) {
 				if ( isset( $_GET['tab'] ) ) {
 					$updated = sanitize_text_field( wp_unslash( $_GET['settings-updated'] ) );
 					$tab     = sanitize_text_field( wp_unslash( $_GET['tab'] ) );

@@ -205,30 +205,6 @@ class Easy_Symlinks_Admin_API {
 	}
 
 	/**
-	 * Validate form field
-	 *
-	 * @param  string $data Submitted value.
-	 * @param  string $type Type of field to validate.
-	 * @return string       Validated value
-	 */
-	public function validate_field( $data = '', $type = 'text' ) {
-
-		switch ( $type ) {
-			case 'text':
-				$data = esc_attr( $data );
-				break;
-			case 'url':
-				$data = esc_url( $data );
-				break;
-			case 'email':
-				$data = is_email( $data );
-				break;
-		}
-
-		return $data;
-	}
-
-	/**
 	 * Allowed html.
 	 *
 	 * @var array
