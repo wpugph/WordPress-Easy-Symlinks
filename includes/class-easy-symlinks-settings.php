@@ -182,7 +182,8 @@ class Easy_Symlinks_Settings {
 		$symlinks       = $links->display_symlinks();
 		$symlinks_array = $links->get_symlinks();
 
-		if ( null === $symlinks_array ) {
+		if ( ( null === $symlinks_array ) || ( empty( $symlinks_array ) ) ) {
+
 			$symlinks_array = array();
 			$desc           = 'No symlinks yet, please add one before you can delete.';
 		} else {
@@ -204,7 +205,7 @@ class Easy_Symlinks_Settings {
 				array(
 					'id'          => 'link',
 					'label'       => __( 'Link', 'easy-symlinks' ),
-					'description' => __( 'This should be non-existing as this one will be created. If tthe folder is existing, contents should be moved to the target first before symlinking.', 'easy-symlinks' ),
+					'description' => __( 'This should be non-existing as this one will be created. If the folder is existing, contents should be moved to the target first before symlinking.', 'easy-symlinks' ),
 					'type'        => 'text',
 					'default'     => '',
 					'placeholder' => __( 'eg: /wp-content/cache', 'easy-symlinks' ),

@@ -142,7 +142,7 @@ class Easy_Symlinks_Admin_API {
 				break;
 
 			case 'select_multi':
-				$html .= '<select name="' . esc_attr( $option_name ) . '[]" id="' . esc_attr( $field['id'] ) . '" multiple="multiple">';
+				$html .= '<select name="' . esc_attr( $option_name ) . '[]" id="' . esc_attr( $field['id'] ) . '">';
 				foreach ( $field['options'] as $k => $v ) {
 					$selected = false;
 					if ( in_array( $k, (array) $data, true ) ) {
@@ -353,6 +353,7 @@ class Easy_Symlinks_Admin_API {
 			'placeholder' => [],
 			'value'       => [],
 			'multiple'    => [],
+			'style'       => [],
 		],
 		'option' => [
 			'id'          => [],
