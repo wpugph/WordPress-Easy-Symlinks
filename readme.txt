@@ -8,11 +8,11 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Easy symlinking tool in WP. This can only track symlinks created within the application and excludes symlinks created from the filesystem and command line.
+Easy symlinking tool in WP. This can only track symlinks created within the application and excludes symlinks created from the filesystem and command line. Best used in Pantheon dev environments in SFTP mode.
 
 == Description ==
 
-Easy symlinking tool in WP. This can only track symlinks created within the application and excludes symlinks created from the filesystem and command line.
+Easy symlinking tool in WP. This can only track symlinks created within the application and excludes symlinks created from the filesystem and command line. Best used in Pantheon dev environments in SFTP mode.
 
 == Installation ==
 
@@ -32,3 +32,4 @@ Installing "Easy Symlinks" can be done either by searching for "Easy Symlinks" v
 * 2019-12-30
 * Improved deleting symlinks UI 
 * Only one symlink is deleted at a time
+* Added checks in Pantheon and writable filesystem

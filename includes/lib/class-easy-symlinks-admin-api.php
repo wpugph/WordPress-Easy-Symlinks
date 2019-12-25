@@ -2,7 +2,7 @@
 /**
  * Post type Admin API file.
  *
- * @package WordPress Plugin Template/Includes
+ * @package Easy Symlinks WP/Includes
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -226,84 +226,6 @@ class Easy_Symlinks_Admin_API {
 		}
 
 		return $data;
-	}
-
-	/**
-	 * Add meta box to the dashboard.
-	 *
-	 * @param string $id            Unique ID for metabox.
-	 * @param string $title         Display title of metabox.
-	 * @param array  $post_types    Post types to which this metabox applies.
-	 * @param string $context       Context in which to display this metabox ('advanced' or 'side').
-	 * @param string $priority      Priority of this metabox ('default', 'low' or 'high').
-	 * @param array  $callback_args Any axtra arguments that will be passed to the display function for this metabox.
-	 * @return void
-	 */
-	public function add_meta_box( $id = '', $title = '', $post_types = array(), $context = 'advanced', $priority = 'default', $callback_args = null ) {
-
-		// Get post type(s).
-		if ( ! is_array( $post_types ) ) {
-			$post_types = array( $post_types );
-		}
-
-		// Generate each metabox.
-		foreach ( $post_types as $post_type ) {
-			add_meta_box( $id, $title, array( $this, 'meta_box_content' ), $post_type, $context, $priority, $callback_args );
-		}
-	}
-
-	/**
-	 * Display metabox content
-	 *
-	 * @param  object $post Post object.
-	 * @param  array  $args Arguments unique to this metabox.
-	 * @return void
-	 */
-	public function meta_box_content( $post, $args ) {
-
-		$fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type );
-
-		if ( ! is_array( $fields ) || 0 === count( $fields ) ) {
-			return;
-		}
-
-		echo '<div class="custom-field-panel">' . "\n";
-
-		foreach ( $fields as $field ) {
-
-			if ( ! isset( $field['metabox'] ) ) {
-				continue;
-			}
-
-			if ( ! is_array( $field['metabox'] ) ) {
-				$field['metabox'] = array( $field['metabox'] );
-			}
-
-			if ( in_array( $args['id'], $field['metabox'], true ) ) {
-				$this->display_meta_box_field( $field, $post );
-			}
-		}
-
-		echo '</div>' . "\n";
-
-	}
-
-	/**
-	 * Dispay field in metabox
-	 *
-	 * @param  array  $field Field data.
-	 * @param  object $post  Post object.
-	 * @return void
-	 */
-	public function display_meta_box_field( $field = array(), $post = null ) {
-
-		if ( ! is_array( $field ) || 0 === count( $field ) ) {
-			return;
-		}
-
-		$field = '<p class="form-field"><label for="' . $field['id'] . '">' . $field['label'] . '</label>' . $this->display_field( $field, $post, false ) . '</p>' . "\n";
-
-		echo wp_kses( $html, $this->allowed_htmls );
 	}
 
 	/**

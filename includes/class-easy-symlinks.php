@@ -2,7 +2,7 @@
 /**
  * Main plugin class file.
  *
- * @package WordPress Plugin Template/Includes
+ * @package Easy Symlinks WP/Includes
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -101,6 +101,16 @@ class Easy_Symlinks {
 	 * @since   1.0.0
 	 */
 	public $script_suffix;
+
+	/**
+	 * Check write wrapper.
+	 *
+	 * @return boolean
+	 */
+	public function check_write() {
+		$checkwrite = new Easy_Symlinks_Functions();
+		return $checkwrite->check_fs_writable();
+	}
 
 	/**
 	 * Save new symlinks.

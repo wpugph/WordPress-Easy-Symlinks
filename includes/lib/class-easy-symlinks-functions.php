@@ -144,4 +144,54 @@ class Easy_Symlinks_Functions {
 
 		return true;
 	}
+
+	/**
+	 * Check if filesystem is writable, disable gui if not.
+	 *
+	 * @return boolean
+	 */
+	public function check_fs_writable() {
+		$homepathwritable = $this->get_wp_homepath();
+		$return           = is_writable( $homepathwritable );
+		return $return;
+	}
+
+	/**
+	 * Check if writable filesystem.
+	 *
+	 * @return array
+	 */
+	public function check_if_in_pantheon_writable_env() {
+		if ( isset( $_ENV['PANTHEON_ENVIRONMENT'] ) ) {
+			if ( in_array( $_ENV['PANTHEON_ENVIRONMENT'], array( 'test', 'live' ), true ) ) {
+				$return['error']  = 'Cannot be used in Test and Live Read noly Environments in Pantheon';
+				$return['status'] = false;
+				return $return;
+			} else {
+				$writable = $this->check_fs_writable();
+				if ( $writable ) {
+					$return['error']  = 'In Writable Environment';
+					$return['status'] = true;
+					return $return;
+				} else {
+					$return['error']  = 'Root folder not writable. Please check if your environment is Git mode or switch SFTP mode.';
+					$return['status'] = false;
+					return $return;
+				}
+			}
+		} else {
+			$writable = $this->check_fs_writable();
+			if ( $writable ) {
+				$return['error']  = 'In Writable filesystem';
+				$return['status'] = true;
+				return $return;
+			} else {
+				$return['error']  = 'Root folder not writable. Please your filesystem if it is writable.';
+				$return['status'] = false;
+				return $return;
+			}
+		}
+	}
+
+
 }

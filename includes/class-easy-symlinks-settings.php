@@ -2,7 +2,7 @@
 /**
  * Settings class file.
  *
- * @package WordPress Plugin Template/Settings
+ * @package Easy Symlinks WP/Settings
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -137,8 +137,8 @@ class Easy_Symlinks_Settings {
 			array(
 				'location'    => 'options', // Possible settings: options, menu, submenu.
 				'parent_slug' => 'options-general.php',
-				'page_title'  => __( 'Easy Symlink Settings', 'easy-symlinks' ),
-				'menu_title'  => __( 'Easy Symlink Settings', 'easy-symlinks' ),
+				'page_title'  => __( 'Easy Symlinks', 'easy-symlinks' ),
+				'menu_title'  => __( 'Easy Symlinks', 'easy-symlinks' ),
 				'capability'  => 'manage_options',
 				'menu_slug'   => $this->parent->token . '_settings',
 				'function'    => array( $this, 'settings_page' ),
@@ -318,7 +318,7 @@ class Easy_Symlinks_Settings {
 		// Build page HTML.
 		$nonce     = sanitize_text_field( wp_create_nonce( plugin_basename( __FILE__ ) ) );
 		$html      = '<div class="wrap" id="' . $this->parent->token . '_settings">' . "\n";
-			$html .= '<h2>' . __( 'Easy Symlink Settings', 'easy-symlinks' ) . '</h2>' . "\n";
+			$html .= '<h2>' . __( 'Easy Symlinks Management', 'easy-symlinks' ) . '</h2>' . "\n";
 
 			$tab = '';
 
@@ -369,6 +369,7 @@ class Easy_Symlinks_Settings {
 				$tab_link = add_query_arg(
 					array(
 						'tab' => $section,
+						// add nonce validation here.
 					)
 				);
 
@@ -404,7 +405,14 @@ class Easy_Symlinks_Settings {
 		$html             .= '</div>' . "\n";
 
 		$sanitisation = new Easy_Symlinks_Admin_API();
-		echo wp_kses( $html, $sanitisation->allowed_htmls );
+		$writable     = new Easy_Symlinks_Functions();
+		$writestatus  = $writable->check_if_in_pantheon_writable_env();
+
+		if ( $writestatus['status'] ) {
+			echo wp_kses( $html, $sanitisation->allowed_htmls );
+		} else {
+			echo '<div>' . esc_html( $writestatus['status'] ) . '</div>';
+		}
 	}
 
 	/**

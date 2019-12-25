@@ -1,7 +1,7 @@
 /**
  * Easy Symlink admin js.
  *
- *  @package Easy Symlink admin./JS
+ *  @package Easy Symlink admin/JS
  */
 
 jQuery(document).ready(
