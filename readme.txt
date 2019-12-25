@@ -4,7 +4,7 @@ Donate link: http://carlalberto.code.blog/
 Tags: wordpress, plugin, symlink
 Requires at least: 4.9
 Tested up to: 5.3
-Stable tag: 1.0
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,6 +24,11 @@ Installing "Easy Symlinks" can be done either by searching for "Easy Symlinks" v
 
 == Changelog ==
 
-= 1.0 =
-* 2019-12-30
+= 1.0.0 =
+* 2019-12-28
 * Initial release
+
+= 1.0.1 =
+* 2019-12-30
+* Improved deleting symlinks UI 
+* Only one symlink is deleted at a time
