@@ -201,6 +201,7 @@ class Easy_Symlinks_Settings {
 					'type'        => 'text',
 					'default'     => '',
 					'placeholder' => __( 'eg: ./uploads/cache', 'easy-symlinks' ),
+					'callback'    => array( $this, 'validate_target' ),
 				),
 				array(
 					'id'          => 'link',
@@ -209,6 +210,7 @@ class Easy_Symlinks_Settings {
 					'type'        => 'text',
 					'default'     => '',
 					'placeholder' => __( 'eg: /wp-content/cache', 'easy-symlinks' ),
+					'callback'    => array( $this, 'validate_link' ),
 				),
 			),
 		);
@@ -326,9 +328,10 @@ class Easy_Symlinks_Settings {
 
 		// Proper nonce handling.
 		if ( isset( $_GET['caes_nonce'] ) ) {
-			$val3 = wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['caes_nonce'] ) ), 'caes_nonce' );
-			if ( isset( $_GET['tab'] ) && sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
-				$tab .= sanitize_text_field( wp_unslash( $_GET['tab'] ) );
+			if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['caes_nonce'] ) ), 'caes_nonce' ) ) {
+				if ( isset( $_GET['tab'] ) && sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
+					$tab .= sanitize_text_field( wp_unslash( $_GET['tab'] ) );
+				}
 			}
 		} else {
 			if ( isset( $_GET['tab'] ) && sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
@@ -453,4 +456,86 @@ class Easy_Symlinks_Settings {
 		_doing_it_wrong( __FUNCTION__, esc_html( __( 'Unserializing instances of Easy_Symlinks_API is forbidden.' ) ), esc_attr( $this->parent->version ) );
 	} // End __wakeup()
 
+	/**
+	 * Validation code for target
+	 *
+	 * @param string $data Contains the data that needs to be validated.
+	 * @return string
+	 */
+	public function validate_target( $data ) {
+		$message = null;
+		$type    = null;
+
+		if ( '' !== $data ) {
+			if ( false === get_option( 'caes_target' ) ) {
+				$type    = 'added';
+				$message = __( 'Target Successfully saved', 'easy-symlinks' );
+				$this->validation_msg( $message, $type );
+				return $data;
+			} else {
+				$type    = 'updated';
+				$message = __( 'Target Successfully updated', 'easy-symlinks' );
+				$this->validation_msg( $message, $type );
+				return $data;
+			}
+			// Additional conditionals here.
+			// - Should be an existing path.
+		} else {
+			// Value must not be null.
+			$type    = 'error';
+			$message = __( 'Target can not be empty', 'easy-symlinks' );
+			$this->validation_msg( $message, $type );
+			return get_option( 'caes_target' );
+		}
+	}
+
+	/**
+	 * Validate caes link
+	 *
+	 * @param string $data Contains the data that needs to be validated.
+	 * @return string
+	 */
+	public function validate_link( $data ) {
+		$message = null;
+		$type    = null;
+		if ( '' !== $data ) {
+			if ( false === get_option( 'caes_link' ) ) {
+				$type    = 'added';
+				$message = __( 'Link Successfully saved', 'easy-symlinks' );
+				$this->validation_msg( $message, $type );
+				return $data;
+			} else {
+				$type    = 'updated';
+				$message = __( 'Link Successfully updated', 'easy-symlinks' );
+				$this->validation_msg( $message, $type );
+				return $data;
+			}
+			// Additional conditionals here.
+			// - Should be an existing path.
+		} else {
+			// Value must not be null.
+			$type    = 'error';
+			$message = __( 'Link can not be empty', 'easy-symlinks' );
+			$this->validation_msg( $message, $type );
+			return get_option( 'caes_link' );
+		}
+
+	}
+
+	/**
+	 * Validation message function
+	 *
+	 * @param string $message Message for the error message.
+	 * @param string $type Error, updated or added.
+	 * @return boolean
+	 */
+	public function validation_msg( $message, $type ) {
+		add_settings_error(
+			'SymlinkError',
+			esc_attr( 'settings_updated' ),
+			$message,
+			$type
+		);
+		return true;
+	}
 }
