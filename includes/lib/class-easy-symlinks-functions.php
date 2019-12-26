@@ -126,7 +126,7 @@ class Easy_Symlinks_Functions {
 		$link          = $homepath . $destination; // This is the one created.
 
 		symlink( $target, $link );
-		// add additional checks here
+		// add additional checks here depending on the return error from here get_settings_errors()
 		// check if already added
 		// successfully add
 		// fail error.
@@ -172,7 +172,7 @@ class Easy_Symlinks_Functions {
 	public function check_if_in_pantheon_writable_env() {
 		if ( isset( $_ENV['PANTHEON_ENVIRONMENT'] ) ) {
 			if ( in_array( $_ENV['PANTHEON_ENVIRONMENT'], array( 'test', 'live' ), true ) ) {
-				$return['error']  = 'Cannot be used in Test and Live Read noly Environments in Pantheon';
+				$return['error']  = 'Cannot be used in Test and Live Read only Environments in Pantheon';
 				$return['status'] = false;
 				return $return;
 			} else {
