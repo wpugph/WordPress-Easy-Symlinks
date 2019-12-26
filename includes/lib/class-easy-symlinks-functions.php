@@ -126,11 +126,19 @@ class Easy_Symlinks_Functions {
 		$link          = $homepath . $destination; // This is the one created.
 
 		symlink( $target, $link );
-		// add additional checks here depending on the return error from here get_settings_errors()
+		// add additional checks here
 		// check if already added
 		// successfully add
 		// fail error.
 		$value = $destination . ' -> ' . $source;
+		// Get the target folder name.
+		if ( preg_match( '/^.\/uploads\/\W?\K.*/', $target, $matches ) ) {
+			// Create target folder under uploads folder.
+			mkdir( $homepath . '/wp-content/uploads/' . $matches[0], 0777, true );
+		} else {
+			preg_match( '/^.\/wp-content\/uploads\/\W?\K.*/', $target, $matches );
+			mkdir( $homepath . '/wp-content/uploads/' . $matches[0], 0777, true );
+		}
 
 		if ( $original_list ) {
 			$new = array_push( $original_list, $value );
