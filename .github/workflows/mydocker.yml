@@ -1,0 +1,19 @@
+name: My Sample Docker test
+
+on: pull_request
+
+jobs:
+  phpcs:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+      with:
+         ref: ${{ github.event.pull_request.head.sha }}
+    - uses: docker://arlalberto/wpbuild1:latest
+      env:
+        GH_BOT_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
+      with:
+        args: "WordPress,WordPress-Core,WordPress-Docs"
+
