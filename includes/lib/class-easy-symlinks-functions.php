@@ -132,9 +132,13 @@ class Easy_Symlinks_Functions {
 		// fail error.
 		$value = $destination . ' -> ' . $source;
 		// Get the target folder name.
-		preg_match( '/^.\/uploads\/\W?\K.*/', $target, $matches );
-		// Create target folder under uploads folder.
-		mkdir( $homepath . '/wp-content/uploads/' . $matches[0], 0777, true );
+		if ( preg_match( '/^.\/uploads\/\W?\K.*/', $target, $matches ) ) {
+			// Create target folder under uploads folder.
+			mkdir( $homepath . '/wp-content/uploads/' . $matches[0], 0777, true );
+		} else {
+			preg_match( '/^.\/wp-content\/uploads\/\W?\K.*/', $target, $matches );
+			mkdir( $homepath . '/wp-content/uploads/' . $matches[0], 0777, true );
+		}
 
 		if ( $original_list ) {
 			$new = array_push( $original_list, $value );
