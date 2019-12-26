@@ -454,3 +454,5 @@ class Easy_Symlinks_Settings {
 	} // End __wakeup()
 
 }
+
+
