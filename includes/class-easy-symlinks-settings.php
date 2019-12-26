@@ -326,9 +326,10 @@ class Easy_Symlinks_Settings {
 
 		// Proper nonce handling.
 		if ( isset( $_GET['caes_nonce'] ) ) {
-			$val3 = wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['caes_nonce'] ) ), 'caes_nonce' );
-			if ( isset( $_GET['tab'] ) && sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
-				$tab .= sanitize_text_field( wp_unslash( $_GET['tab'] ) );
+			if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['caes_nonce'] ) ), 'caes_nonce' ) ) {
+				if ( isset( $_GET['tab'] ) && sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
+					$tab .= sanitize_text_field( wp_unslash( $_GET['tab'] ) );
+				}
 			}
 		} else {
 			if ( isset( $_GET['tab'] ) && sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
