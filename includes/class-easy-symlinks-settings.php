@@ -465,7 +465,9 @@ class Easy_Symlinks_Settings {
 	public function validate_target( $data ) {
 		$message = null;
 		$type    = null;
-		if ( null !== $data ) {
+
+write_log( var_dump( $data ) );
+		if ( '' !== $data ) {
 			if ( false === get_option( 'caes_target' ) ) {
 				$type    = 'added';
 				$message = __( 'Target Successfully saved', 'easy-symlinks' );
@@ -497,7 +499,7 @@ class Easy_Symlinks_Settings {
 	public function validate_link( $data ) {
 		$message = null;
 		$type    = null;
-		if ( null !== $data ) {
+		if ( '' !== $data ) {
 			if ( false === get_option( 'caes_link' ) ) {
 				$type    = 'added';
 				$message = __( 'Link Successfully saved', 'easy-symlinks' );
@@ -514,7 +516,7 @@ class Easy_Symlinks_Settings {
 		} else {
 			// Value must not be null.
 			$type    = 'error';
-			$message = __( 'Target can not be empty', 'easy-symlinks' );
+			$message = __( 'Link can not be empty', 'easy-symlinks' );
 			$this->validation_msg( $message, $type );
 			return get_option( 'caes_link' );
 		}
