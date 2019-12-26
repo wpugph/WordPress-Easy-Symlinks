@@ -16,6 +16,4 @@ jobs:
         GH_BOT_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
       with:
         args: "WordPress,WordPress-Core,WordPress-Docs"
-      run:
-        echo testing my own docker
-        ls
+
