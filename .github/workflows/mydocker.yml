@@ -11,9 +11,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
          ref: ${{ github.event.pull_request.head.sha }}
-    - uses: docker://carlalberto/wpbuild1:latest
+    - uses: carl-alberto/wpdocker1@master
       env:
         GH_BOT_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
-      with:
-        args: "WordPress,WordPress-Core,WordPress-Docs"
 
