@@ -466,7 +466,6 @@ class Easy_Symlinks_Settings {
 		$message = null;
 		$type    = null;
 
-write_log( var_dump( $data ) );
 		if ( '' !== $data ) {
 			if ( false === get_option( 'caes_target' ) ) {
 				$type    = 'added';
