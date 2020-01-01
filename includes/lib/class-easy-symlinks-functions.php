@@ -131,8 +131,8 @@ class Easy_Symlinks_Functions {
 		// successfully add
 		// fail error.
 		$value = $destination . ' -> ' . $source;
-		
-		$this->create_folder($target);
+
+		$this->create_folder( $target );
 
 		if ( $original_list ) {
 			$new = array_push( $original_list, $value );
@@ -196,10 +196,14 @@ class Easy_Symlinks_Functions {
 	}
 
 	/**
-	 * Create folder for symlinks
+	 * Create folder for symlinks.
+	 *
+	 * @param string $target Hook parameter.
+	 *
+	 * @return boolean
 	 */
-	public function create_folder($target) {
-		$homepath      = $this->get_wp_homepath();
+	public function create_folder( $target ) {
+		$homepath = $this->get_wp_homepath();
 
 		// Get the target folder name.
 		if ( preg_match( '/\/uploads\/\W?\K.*/', $target, $matches ) ) {
