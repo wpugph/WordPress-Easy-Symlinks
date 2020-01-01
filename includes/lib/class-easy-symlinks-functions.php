@@ -131,11 +131,8 @@ class Easy_Symlinks_Functions {
 		// successfully add
 		// fail error.
 		$value = $destination . ' -> ' . $source;
-		// Get the target folder name.
-		if ( preg_match( '/\/uploads\/\W?\K.*/', $target, $matches ) ) {
-			// Create target folder under uploads folder.
-			mkdir( $homepath . '/wp-content/uploads/' . $matches[0], 0777, true );
-		}
+		
+		$this->create_folder($target);
 
 		if ( $original_list ) {
 			$new = array_push( $original_list, $value );
@@ -198,5 +195,18 @@ class Easy_Symlinks_Functions {
 		}
 	}
 
+	/**
+	 * Create folder for symlinks
+	 */
+	public function create_folder($target) {
+		$homepath      = $this->get_wp_homepath();
+
+		// Get the target folder name.
+		if ( preg_match( '/\/uploads\/\W?\K.*/', $target, $matches ) ) {
+			// Create target folder under uploads folder.
+			$status = mkdir( $homepath . '/wp-content/uploads/' . $matches[0], 0777, true );
+		}
+		return $status;
+	}
 
 }
