@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Easy Symlinks
- * Version: 1.0.0
+ * Version: 1.0.1
  * Plugin URI: http://wordpress.org/plugins/easy-symlinks
  * Description: Easy symlinking tool in WP. Best used for non-command line users. This can only track symlinks created within the application and excludes symlinks created from the filesystem and command line. Best used in Pantheon dev environments in SFTP mode.
  * Author: Carl Alberto
