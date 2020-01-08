@@ -164,7 +164,7 @@ class Easy_Symlinks_Functions {
 	public function check_if_in_pantheon_writable_env() {
 		if ( isset( $_ENV['PANTHEON_ENVIRONMENT'] ) ) {
 			if ( in_array( $_ENV['PANTHEON_ENVIRONMENT'], array( 'test', 'live' ), true ) ) {
-				$return['error']  = 'Cannot be used in Test and Live Read only Environments in Pantheon';
+				$return['error']  = 'This plugin can not be used in Test and Live Read-only Environments in Pantheon';
 				$return['status'] = false;
 				return $return;
 			} else {
@@ -174,7 +174,7 @@ class Easy_Symlinks_Functions {
 					$return['status'] = true;
 					return $return;
 				} else {
-					$return['error']  = 'Root folder not writable. Please check if your environment is Git mode or switch SFTP mode.';
+					$return['error']  = 'Root folder not writable. Please check if your environment is in Git mode or switch SFTP mode.';
 					$return['status'] = false;
 					return $return;
 				}
@@ -186,7 +186,7 @@ class Easy_Symlinks_Functions {
 				$return['status'] = true;
 				return $return;
 			} else {
-				$return['error']  = 'Root folder not writable. Please your filesystem if it is writable.';
+				$return['error']  = 'Root folder not writable. Please check your filesystem if it is writable.';
 				$return['status'] = false;
 				return $return;
 			}

@@ -244,6 +244,18 @@ class Easy_Symlinks {
 	} // End log_version_number ()
 
 	/**
+	 * Load scripts only on designated page.
+	 *
+	 * @return void
+	 */
+	public function wp_admin_scripts() {
+		global $pagenow;
+		if ( 'options-general.php' === $pagenow ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 10, 1 );
+		}
+	}
+
+	/**
 	 * Constructor function.
 	 *
 	 * @param string $file File constructor.
@@ -263,7 +275,7 @@ class Easy_Symlinks {
 
 		register_activation_hook( $this->file, array( $this, 'install' ) );
 
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 10, 1 );
+		$this->wp_admin_scripts();
 
 		// Load API for generic admin functions.
 		if ( is_admin() ) {
