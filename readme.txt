@@ -4,7 +4,7 @@ Donate link: http://carlalberto.code.blog/
 Tags: wordpress, plugin, symlink
 Requires at least: 4.9
 Tested up to: 5.3
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,10 @@ Installing "Easy Symlinks" can be done either by searching for "Easy Symlinks" v
 3. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+
+= 1.0.1 =
+* 2020-1-8
+* Closed issues https://github.com/wpugph/WordPress-Easy-Symlinks/issues?q=is%3Aissue+milestone%3A1.0.1+is%3Aclosed
 
 = 1.0.0beta =
 * 2019-12-24
