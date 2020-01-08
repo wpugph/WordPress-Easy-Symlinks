@@ -34,7 +34,7 @@ require_once 'includes/lib/class-easy-symlinks-functions.php';
  * @return object Easy_Symlinks
  */
 function easy_symlinks() {
-	$instance = Easy_Symlinks::instance( __FILE__, '1.0.0' );
+	$instance = Easy_Symlinks::instance( __FILE__, '1.0.1' );
 
 	if ( is_null( $instance->settings ) ) {
 		$instance->settings = Easy_Symlinks_Settings::instance( $instance );
