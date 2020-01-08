@@ -15,8 +15,16 @@ jQuery(document).ready(
 
 		if ( 'easy_symlinks_settings' === page ) {
 			if ( ( null === tab ) || ( 'add' === tab ) ) {
-				document.getElementById('target').value = '';
-				document.getElementById('link').value = '';
+
+				var caesTarget = document.getElementById('target');
+				if ( caesTarget ) {
+					document.getElementById('target').value = '';
+				}
+
+				var caesLink = document.getElementById('link');
+				if ( caesLink ) {
+					document.getElementById('link').value = '';
+				}
 			}
 		}
 
@@ -26,7 +34,6 @@ jQuery(document).ready(
 		var updated3 = url3.searchParams.get("settings-updated");
 		if ( ( 'easy_symlinks_settings' === page3 ) && ( 'delete' === tab ) && ( 'true' === updated3 ) ) {
 			var redir = url.origin + '/wp-admin/options-general.php?page=easy_symlinks_settings&tab=delete';
-			console.log( redir );
 			window.location.replace( redir );
 		}
 	}
