@@ -4,14 +4,14 @@
  *  @package Easy Symlink admin/JS
  */
 
-jQuery(document).ready(
+jQuery( document ).ready(
 	function (e) {
 		var url_string = window.location.href;
-		var url = new URL(url_string);
-		var page = url.searchParams.get( 'page' );
-		var tab = url.searchParams.get( 'tab');
-		var deleted = url.searchParams.get( 'caes_deleted') ;
-		var refer = document.getElementsByName( '_wp_http_referer' )[0].value;
+		var url        = new URL( url_string );
+		var page       = url.searchParams.get( 'page' );
+		var tab        = url.searchParams.get( 'tab' );
+		var deleted    = url.searchParams.get( 'caes_deleted' );
+		var refer      = document.getElementsByName( '_wp_http_referer' )[0].value;
 
 		if ( 'easy_symlinks_settings' === page ) {
 			if ( ( null === tab ) || ( 'add' === tab ) ) {
@@ -28,9 +28,9 @@ jQuery(document).ready(
 			}
 		}
 
-		var url3 = new URL(url.origin + refer);
-		var page3 = url3.searchParams.get( 'page' );
-		var tab3 = url3.searchParams.get( 'tab' );
+		var url3     = new URL( url.origin + refer );
+		var page3    = url3.searchParams.get( 'page' );
+		var tab3     = url3.searchParams.get( 'tab' );
 		var updated3 = url3.searchParams.get( 'settings-updated' );
 		if ( ( 'easy_symlinks_settings' === page3 ) && ( 'delete' === tab ) && ( 'true' === updated3 ) ) {
 			var redir = url.origin + '/wp-admin/options-general.php?page=easy_symlinks_settings&tab=delete';
