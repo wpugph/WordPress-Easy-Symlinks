@@ -3,8 +3,8 @@ Contributors: carl-alberto
 Donate link: http://carlalberto.code.blog/
 Tags: wordpress, plugin, symlink
 Requires at least: 4.9
-Tested up to: 5.3
-Stable tag: 1.0.1
+Tested up to: 5.8.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,10 @@ Installing "Easy Symlinks" can be done either by searching for "Easy Symlinks" v
 3. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+
+= 1.0.2 =
+* 2021-10-9
+* Version bump for 5.8.1 compatibility
 
 = 1.0.1 =
 * 2020-1-8
