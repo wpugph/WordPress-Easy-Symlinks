@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name: Easy Symlinks
- * Version: 1.0.1
+ * Version: 1.0.2
  * Plugin URI: http://wordpress.org/plugins/easy-symlinks
  * Description: Easy symlinking tool in WP. Best used for non-command line users. This can only track symlinks created within the application and excludes symlinks created from the filesystem and command line. Best used in Pantheon dev environments in SFTP mode.
  * Author: Carl Alberto
  * Author URI: https://carlalberto.code.blog/
  * Requires at least: 4.9
- * Tested up to: 5.3
+ * Tested up to: 5.8.1
  *
  * Text Domain: easy-symlinks
  * Domain Path: /lang/
@@ -34,7 +34,7 @@ require_once 'includes/lib/class-easy-symlinks-functions.php';
  * @return object Easy_Symlinks
  */
 function easy_symlinks() {
-	$instance = Easy_Symlinks::instance( __FILE__, '1.0.1' );
+	$instance = Easy_Symlinks::instance( __FILE__, '1.0.2' );
 
 	if ( is_null( $instance->settings ) ) {
 		$instance->settings = Easy_Symlinks_Settings::instance( $instance );
