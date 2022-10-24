@@ -31,7 +31,7 @@ Installing "Easy Symlinks" can be done either by searching for "Easy Symlinks" v
 == Changelog ==
 
 = 1.0.3 =
-* 2022-10-24
+* 2022-10-23
 * Version bump for 6.0.3 compatibility
 
 = 1.0.2 =
