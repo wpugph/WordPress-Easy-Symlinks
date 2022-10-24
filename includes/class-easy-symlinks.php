@@ -261,7 +261,7 @@ class Easy_Symlinks {
 	 * @param string $file File constructor.
 	 * @param string $version Plugin version.
 	 */
-	public function __construct( $file = '', $version = '1.0.2' ) {
+	public function __construct( $file = '', $version = '1.0.3' ) {
 		$this->version = $version;
 		$this->token   = 'easy_symlinks';
 
@@ -303,7 +303,7 @@ class Easy_Symlinks {
 	 * @since 1.0.0
 	 * @static
 	 */
-	public static function instance( $file = '', $version = '1.0.2' ) {
+	public static function instance( $file = '', $version = '1.0.3' ) {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self( $file, $version );
 		}
