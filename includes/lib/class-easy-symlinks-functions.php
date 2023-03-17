@@ -204,6 +204,7 @@ class Easy_Symlinks_Functions {
 	 */
 	public function create_folder( $target ) {
 		$homepath = $this->get_wp_homepath();
+		$status = FALSE;
 
 		// Get the target folder name.
 		if ( preg_match( '/\/uploads\/\W?\K.*/', $target, $matches ) ) {
