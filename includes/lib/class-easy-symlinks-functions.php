@@ -131,6 +131,15 @@ class Easy_Symlinks_Functions {
 		// successfully add
 		// fail error.
 		$value = $destination . ' -> ' . $source;
+		// Get the target folder name.
+		if ( preg_match( '/^.\/uploads\/\W?\K.*/', $target, $matches ) ) {
+			// Create target folder under uploads folder.
+			mkdir( $homepath . '/wp-content/uploads/' . $matches[0], 0777, true );
+		} else {
+			// Create target folder under uploads folder.
+			preg_match( '/^.\/wp-content\/uploads\/\W?\K.*/', $target, $matches );
+			mkdir( $homepath . '/wp-content/uploads/' . $matches[0], 0777, true );
+		}
 
 		$this->create_folder( $target );
 
