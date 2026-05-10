@@ -311,6 +311,76 @@ class Easy_Symlinks_Settings {
 	}
 
 	/**
+	 * Render the environment info banner.
+	 *
+	 * @param array $env Environment data from detect_environment().
+	 * @return string HTML for the banner.
+	 */
+	private function render_environment_banner( $env ) {
+		$is_pantheon = ( 'pantheon' === $env['type'] );
+		$readonly    = $is_pantheon && in_array( $env['environment'], array( 'test', 'live' ), true );
+
+		if ( $readonly ) {
+			$notice_class = 'notice-error';
+			$status_label = 'Read-only';
+			$dashicon     = 'dashicons-lock';
+		} elseif ( $env['writable'] ) {
+			$notice_class = 'notice-success';
+			$status_label = 'Writable';
+			$dashicon     = 'dashicons-unlock';
+		} else {
+			$notice_class = 'notice-warning';
+			$status_label = 'Not writable';
+			$dashicon     = 'dashicons-warning';
+		}
+
+		$html  = '<div class="notice ' . $notice_class . '" style="padding:12px 16px;margin:15px 0;">';
+		$html .= '<p style="margin:0 0 6px;font-size:14px;font-weight:600;">';
+		$html .= '<span class="dashicons ' . $dashicon . '" style="margin-right:6px;vertical-align:text-bottom;"></span>';
+		$html .= 'Environment: ' . esc_html( $env['label'] );
+		$html .= '</p>';
+
+		$html .= '<table style="border-collapse:collapse;margin:0;">';
+
+		$html .= '<tr><td style="padding:2px 12px 2px 0;font-weight:500;">Type</td>';
+		$html .= '<td style="padding:2px 0;">' . esc_html( $is_pantheon ? 'Pantheon' : 'Local / Non-Pantheon' ) . '</td></tr>';
+
+		if ( $is_pantheon ) {
+			$html .= '<tr><td style="padding:2px 12px 2px 0;font-weight:500;">Environment</td>';
+			$html .= '<td style="padding:2px 0;">' . esc_html( $env['environment'] ) . '</td></tr>';
+
+			if ( ! empty( $env['site_name'] ) ) {
+				$html .= '<tr><td style="padding:2px 12px 2px 0;font-weight:500;">Site Name</td>';
+				$html .= '<td style="padding:2px 0;">' . esc_html( $env['site_name'] ) . '</td></tr>';
+			}
+
+			if ( ! empty( $env['connection'] ) ) {
+				$html .= '<tr><td style="padding:2px 12px 2px 0;font-weight:500;">Connection Mode</td>';
+				$html .= '<td style="padding:2px 0;">' . esc_html( strtoupper( $env['connection'] ) ) . '</td></tr>';
+			}
+		}
+
+		$html .= '<tr><td style="padding:2px 12px 2px 0;font-weight:500;">Filesystem</td>';
+		$html .= '<td style="padding:2px 0;">' . esc_html( $status_label ) . '</td></tr>';
+
+		$html .= '</table>';
+
+		if ( $readonly ) {
+			$html .= '<p style="margin:8px 0 0;"><strong>Symlinks cannot be created in read-only environments.</strong> Switch to a Dev or Multidev environment.</p>';
+		} elseif ( ! $env['writable'] ) {
+			if ( $is_pantheon ) {
+				$html .= '<p style="margin:8px 0 0;">Filesystem is not writable. Switch to <strong>SFTP mode</strong> in the Pantheon dashboard.</p>';
+			} else {
+				$html .= '<p style="margin:8px 0 0;">Filesystem is not writable. Check your file permissions.</p>';
+			}
+		}
+
+		$html .= '</div>';
+
+		return $html;
+	}
+
+	/**
 	 * Load settings page content.
 	 *
 	 * @return void
@@ -318,13 +388,25 @@ class Easy_Symlinks_Settings {
 	public function settings_page() {
 
 		$links = new Easy_Symlinks_Functions();
+		$env   = $links->detect_environment();
+
+		$sanitisation = new Easy_Symlinks_Admin_API();
+		$writestatus  = $links->check_if_in_pantheon_writable_env();
+
+		// Always render the page wrapper, heading, and environment banner.
+		echo '<div class="wrap" id="' . esc_html( $this->parent->token ) . '_settings">' . "\n";
+		echo '<h2>' . esc_html( __( 'Easy Symlinks Management', 'easy-symlinks' ) ) . '</h2>' . "\n";
+		echo wp_kses( $this->render_environment_banner( $env ), $sanitisation->allowed_htmls );
+
+		if ( ! $writestatus['status'] ) {
+			echo '</div>';
+			return;
+		}
 
 		// Build page HTML.
-		$nonce     = sanitize_text_field( wp_create_nonce( 'caes_nonce' ) );
-		$html      = '<div class="wrap" id="' . $this->parent->token . '_settings">' . "\n";
-			$html .= '<h2>' . __( 'Easy Symlinks Management', 'easy-symlinks' ) . '</h2>' . "\n";
-
-			$tab = '';
+		$nonce = sanitize_text_field( wp_create_nonce( 'caes_nonce' ) );
+		$html  = '';
+		$tab   = '';
 
 		// Proper nonce handling.
 		if ( isset( $_GET['caes_nonce'] ) ) {
@@ -371,7 +453,6 @@ class Easy_Symlinks_Settings {
 					array(
 						'tab'        => $section,
 						'caes_nonce' => $nonce,
-						// add nonce validation here.
 					)
 				);
 
@@ -406,18 +487,7 @@ class Easy_Symlinks_Settings {
 			$html         .= '</form>' . "\n";
 		$html             .= '</div>' . "\n";
 
-		$sanitisation = new Easy_Symlinks_Admin_API();
-		$writable     = new Easy_Symlinks_Functions();
-		$writestatus  = $writable->check_if_in_pantheon_writable_env();
-
-		if ( $writestatus['status'] ) {
-			echo wp_kses( $html, $sanitisation->allowed_htmls );
-		} else {
-			echo '<div class="wrap" id="' . esc_html( $this->parent->token ) . '_settings">' . "\n";
-			echo '<h2>' . esc_html( __( 'Easy Symlinks Management', 'easy-symlinks' ) ) . '</h2>' . "\n";
-			echo '<div class="notice notice-error settings-error">' . esc_html( $writestatus['error'] ) . '</div>';
-			echo '</div>';
-		}
+		echo wp_kses( $html, $sanitisation->allowed_htmls );
 	}
 
 	/**

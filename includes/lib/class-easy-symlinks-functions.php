@@ -159,19 +159,64 @@ class Easy_Symlinks_Functions {
 	}
 
 	/**
+	 * Detect the current hosting environment.
+	 *
+	 * @return array {
+	 *     @type string $type        'pantheon' or 'local'.
+	 *     @type string $environment Pantheon environment name or 'local'.
+	 *     @type string $label       Human-readable environment label.
+	 *     @type bool   $writable    Whether the filesystem is writable.
+	 *     @type string $site_name   Pantheon site name if available.
+	 *     @type string $connection  Pantheon connection mode (sftp/git) if detectable.
+	 * }
+	 */
+	public function detect_environment() {
+		$env = array(
+			'type'        => 'local',
+			'environment' => 'local',
+			'label'       => 'Local Development',
+			'writable'    => $this->check_fs_writable(),
+			'site_name'   => '',
+			'connection'  => '',
+		);
+
+		if ( isset( $_ENV['PANTHEON_ENVIRONMENT'] ) ) {
+			$env['type']        = 'pantheon';
+			$env['environment'] = sanitize_text_field( $_ENV['PANTHEON_ENVIRONMENT'] );
+			$env['site_name']   = isset( $_ENV['PANTHEON_SITE_NAME'] ) ? sanitize_text_field( $_ENV['PANTHEON_SITE_NAME'] ) : '';
+
+			$labels = array(
+				'dev'  => 'Pantheon Dev',
+				'test' => 'Pantheon Test',
+				'live' => 'Pantheon Live',
+			);
+			$env['label'] = isset( $labels[ $env['environment'] ] )
+				? $labels[ $env['environment'] ]
+				: 'Pantheon Multidev (' . $env['environment'] . ')';
+
+			if ( isset( $_ENV['PANTHEON_ENVIRONMENT_CONNECTION_MODE'] ) ) {
+				$env['connection'] = sanitize_text_field( $_ENV['PANTHEON_ENVIRONMENT_CONNECTION_MODE'] );
+			}
+		}
+
+		return $env;
+	}
+
+	/**
 	 * Check if writable filesystem.
 	 *
 	 * @return array
 	 */
 	public function check_if_in_pantheon_writable_env() {
-		if ( isset( $_ENV['PANTHEON_ENVIRONMENT'] ) ) {
-			if ( in_array( $_ENV['PANTHEON_ENVIRONMENT'], array( 'test', 'live' ), true ) ) {
+		$env = $this->detect_environment();
+
+		if ( 'pantheon' === $env['type'] ) {
+			if ( in_array( $env['environment'], array( 'test', 'live' ), true ) ) {
 				$return['error']  = 'This plugin can not be used in Test and Live Read-only Environments in Pantheon';
 				$return['status'] = false;
 				return $return;
 			} else {
-				$writable = $this->check_fs_writable();
-				if ( $writable ) {
+				if ( $env['writable'] ) {
 					$return['error']  = 'In Writable Environment';
 					$return['status'] = true;
 					return $return;
@@ -182,8 +227,7 @@ class Easy_Symlinks_Functions {
 				}
 			}
 		} else {
-			$writable = $this->check_fs_writable();
-			if ( $writable ) {
+			if ( $env['writable'] ) {
 				$return['error']  = 'In Writable filesystem';
 				$return['status'] = true;
 				return $return;
