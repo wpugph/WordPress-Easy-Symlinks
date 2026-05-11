@@ -455,10 +455,11 @@ class Easy_Symlinks_Settings {
 			$html .= '<tr style="border-bottom:1px solid #ddd;"><th style="text-align:left;padding:6px 8px;font-size:13px;color:#50575e;">Target</th><th style="text-align:left;padding:6px 8px;font-size:13px;color:#50575e;">Link</th><th style="text-align:left;padding:6px 8px;font-size:13px;color:#50575e;">Status</th></tr>';
 
 			foreach ( $preset['links'] as $pair ) {
-				$full_link = $homepath . $pair['link'];
-				if ( is_link( $full_link ) ) {
+				$full_link   = $homepath . $pair['link'];
+				$link_status = $links->get_link_status( $full_link );
+				if ( 'symlink' === $link_status ) {
 					$status = '<span style="color:#00a32a;">&#10003; Symlinked</span>';
-				} elseif ( file_exists( $full_link ) ) {
+				} elseif ( 'exists' === $link_status ) {
 					$status_text = $is_remove ? 'Exists (not a symlink)' : 'Exists (will be moved &amp; symlinked)';
 					$status      = '<span style="color:#dba617;">' . $status_text . '</span>';
 				} else {

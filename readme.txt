@@ -106,6 +106,10 @@ No. This plugin only tracks symlinks that were created through its own interface
 * New: Presets tab — auto-detects plugins that need symlinks for Pantheon compatibility
 * New: Wordfence preset with wflogs, wordfence-waf.php, and .user.ini symlinks
 * New: One-click apply for preset symlinks with status indicators (Active/Not created)
+* New: Remove Presets tab — safely removes preset symlinks and restores original files
+* New: Smart file conversion — moves existing files to target location before symlinking
+* New: Cross-filesystem file operations with copy+delete fallback for Pantheon
+* New: SFTP mode warning when Pantheon filesystem is not writable
 * New: Settings tab with "Delete data on uninstall" option for database cleanup
 * New: Duplicate symlink detection — prevents re-creating existing symlinks
 * Improved: Clear error/success notifications for all symlink actions
