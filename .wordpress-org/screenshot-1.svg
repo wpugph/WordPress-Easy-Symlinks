@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900">
+  <!-- WP Admin background -->
+  <rect width="1200" height="900" fill="#f0f0f1"/>
+
+  <!-- Card container -->
+  <rect x="80" y="60" width="1040" height="780" rx="12" fill="#ffffff" stroke="#ddd" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="120" y="115" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="700" fill="#1d2327">Easy Symlinks Management</text>
+
+  <!-- Tabs -->
+  <rect x="120" y="140" width="160" height="40" rx="20" fill="#FFDC28"/>
+  <text x="160" y="166" font-family="system-ui, sans-serif" font-size="15" font-weight="600" fill="#1a1a1a">Add Symlinks</text>
+  <rect x="295" y="140" width="180" height="40" rx="20" fill="#e0e0e0"/>
+  <text x="330" y="166" font-family="system-ui, sans-serif" font-size="15" font-weight="500" fill="#666">Delete Symlinks</text>
+
+  <!-- Target field -->
+  <text x="120" y="230" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#1d2327">Target</text>
+  <text x="120" y="252" font-family="system-ui, sans-serif" font-size="13" fill="#888">Relative path to existing directory (e.g., ./uploads/cache)</text>
+  <rect x="120" y="265" width="960" height="46" rx="8" fill="#ffffff" stroke="#ddd" stroke-width="1.5"/>
+  <text x="138" y="294" font-family="system-ui, sans-serif" font-size="15" fill="#bbb">./wp-content/uploads/wflogs</text>
+
+  <!-- Link field -->
+  <text x="120" y="355" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#1d2327">Link</text>
+  <text x="120" y="377" font-family="system-ui, sans-serif" font-size="13" fill="#888">Path where the symlink will be created (e.g., /wp-content/cache)</text>
+  <rect x="120" y="390" width="960" height="46" rx="8" fill="#ffffff" stroke="#ddd" stroke-width="1.5"/>
+  <text x="138" y="419" font-family="system-ui, sans-serif" font-size="15" fill="#bbb">/wp-content/wflogs</text>
+
+  <!-- Save button -->
+  <rect x="120" y="470" width="180" height="44" rx="8" fill="#FFDC28"/>
+  <text x="160" y="498" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#1a1a1a">Save Symlink</text>
+
+  <!-- Existing symlinks section -->
+  <text x="120" y="570" font-family="system-ui, sans-serif" font-size="18" font-weight="600" fill="#1d2327">Existing Symlinks:</text>
+  <text x="120" y="600" font-family="monospace" font-size="14" fill="#555">/wp-content/wflogs -> ./wp-content/uploads/wflogs</text>
+  <text x="120" y="625" font-family="monospace" font-size="14" fill="#555">/wp-content/cache -> ./wp-content/uploads/cache</text>
+</svg>
