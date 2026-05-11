@@ -51,20 +51,122 @@ class Easy_Symlinks_Functions {
 	}
 
 	/**
+	 * Get the status of a filesystem path.
+	 *
+	 * @param string $path Full filesystem path to check.
+	 * @return string 'symlink', 'exists', or 'none'.
+	 */
+	public function get_link_status( $path ) {
+		clearstatcache( true, $path );
+		if ( is_link( $path ) ) {
+			return 'symlink';
+		}
+		if ( is_dir( $path ) || is_file( $path ) ) {
+			return 'exists';
+		}
+		return 'none';
+	}
+
+	/**
+	 * Get the saved symlink list from the database.
+	 *
+	 * @return array
+	 */
+	private function get_symlink_list() {
+		$list = maybe_unserialize( get_option( 'caes_symlink_list', false ) );
+		return $list ? $list : array();
+	}
+
+	/**
+	 * Save the symlink list to the database.
+	 *
+	 * @param array $list Symlink list to save.
+	 * @return void
+	 */
+	private function save_symlink_list( $list ) {
+		update_option( 'caes_symlink_list', maybe_serialize( $list ) );
+	}
+
+	/**
+	 * Ensure the parent directory of a path exists.
+	 *
+	 * @param string $path Full filesystem path.
+	 * @return void
+	 */
+	private function ensure_parent_dir( $path ) {
+		$parent = dirname( $path );
+		if ( ! is_dir( $parent ) ) {
+			@wp_mkdir_p( $parent );
+		}
+	}
+
+	/**
+	 * Copy a file or directory to a destination.
+	 *
+	 * @param string $source Source path.
+	 * @param string $dest   Destination path.
+	 * @return boolean True if copy succeeded.
+	 */
+	private function copy_path( $source, $dest ) {
+		if ( is_dir( $source ) ) {
+			$this->copy_directory( $source, $dest );
+			return is_dir( $dest );
+		}
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_copy
+		@copy( $source, $dest );
+		return file_exists( $dest );
+	}
+
+	/**
+	 * Remove a file or directory.
+	 *
+	 * @param string $path Path to remove.
+	 * @return void
+	 */
+	private function remove_path( $path ) {
+		if ( ! $path ) {
+			return;
+		}
+		clearstatcache( true, $path );
+		if ( is_dir( $path ) && ! is_link( $path ) ) {
+			$this->remove_directory( $path );
+		} elseif ( file_exists( $path ) || is_link( $path ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			@unlink( $path );
+		}
+	}
+
+	/**
+	 * Move a file or directory with cross-filesystem fallback.
+	 *
+	 * @param string $source Source path.
+	 * @param string $dest   Destination path.
+	 * @return boolean True if move succeeded.
+	 */
+	private function move_path( $source, $dest ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
+		$moved = @rename( $source, $dest );
+		if ( $moved ) {
+			return true;
+		}
+
+		$copied = $this->copy_path( $source, $dest );
+		if ( $copied ) {
+			$this->remove_path( $source );
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Get existing symlinks list from wp_options table.
 	 *
 	 * @return array
 	 */
 	public function get_symlinks() {
-		$symlinklist = '';
-		$symlinklist = maybe_unserialize( get_option( 'caes_symlink_list' ) );
-
-		if ( ( null === $symlinklist ) || ( false === $symlinklist ) ) {
-			return null;
-		} else {
-			return $symlinklist;
-		}
-
+		$list = $this->get_symlink_list();
+		return empty( $list ) ? null : $list;
 	}
 
 	/**
@@ -98,7 +200,7 @@ class Easy_Symlinks_Functions {
 	 */
 	public function delete_symlink() {
 		$homepath = $this->get_wp_homepath();
-		$original = maybe_unserialize( get_option( 'caes_symlink_list' ) );
+		$original = $this->get_symlink_list();
 		$todelete = maybe_unserialize( get_option( 'caes_symlink_list_lastdelete' ) );
 
 		if ( empty( $todelete ) || empty( $original ) ) {
@@ -116,9 +218,9 @@ class Easy_Symlinks_Functions {
 		$full_path      = $homepath . $path_todelete1;
 
 		unset( $original[ $del ] );
-		update_option( 'caes_symlink_list', maybe_serialize( $original ) );
+		$this->save_symlink_list( $original );
 
-		if ( ! is_link( $full_path ) ) {
+		if ( 'symlink' !== $this->get_link_status( $full_path ) ) {
 			return true;
 		}
 
@@ -133,22 +235,17 @@ class Easy_Symlinks_Functions {
 	 */
 	public function save_symlinks() {
 		$homepath      = $this->get_wp_homepath();
-		$original_list = '';
-		$original_list = maybe_unserialize( get_option( 'caes_symlink_list', false ) );
+		$original_list = $this->get_symlink_list();
 		$source        = maybe_unserialize( get_option( 'caes_target' ) );
 		$destination   = maybe_unserialize( get_option( 'caes_link' ) );
-		$target        = $source; // This should be existing.
-		$link          = $homepath . $destination; // This is the one created.
+		$target        = $source;
+		$link          = $homepath . $destination;
 
-		if ( is_link( $link ) || file_exists( $link ) ) {
+		if ( 'none' !== $this->get_link_status( $link ) ) {
 			return false;
 		}
 
-		$link_parent = dirname( $link );
-		if ( ! is_dir( $link_parent ) ) {
-			wp_mkdir_p( $link_parent );
-		}
-
+		$this->ensure_parent_dir( $link );
 		$this->create_folder( $target );
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.symlink_symlink
@@ -157,17 +254,8 @@ class Easy_Symlinks_Functions {
 			return false;
 		}
 
-		$value = $destination . ' -> ' . $source;
-
-		if ( $original_list ) {
-			$new = array_push( $original_list, $value );
-		} else {
-			$original_list = array();
-			$new           = array_push( $original_list, $value );
-		}
-
-		$option = 'caes_symlink_list';
-		update_option( $option, maybe_serialize( $original_list ) );
+		$original_list[] = $destination . ' -> ' . $source;
+		$this->save_symlink_list( $original_list );
 
 		return true;
 	}
@@ -265,6 +353,371 @@ class Easy_Symlinks_Functions {
 	}
 
 	/**
+	 * Get available preset symlink configurations for detected plugins.
+	 *
+	 * @return array
+	 */
+	public function get_presets() {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$presets = array();
+
+		if ( is_plugin_active( 'wordfence/wordfence.php' ) || file_exists( WP_PLUGIN_DIR . '/wordfence/wordfence.php' ) ) {
+			$presets['wordfence'] = array(
+				'name'  => 'Wordfence',
+				'links' => array(
+					array(
+						'target' => '../files/wflogs',
+						'link'   => '/wp-content/wflogs',
+					),
+					array(
+						'target' => '../files/private/wordfence-waf.php',
+						'link'   => '/wordfence-waf.php',
+					),
+					array(
+						'target' => '../files/private/.user.ini',
+						'link'   => '/.user.ini',
+					),
+				),
+			);
+		}
+
+		if ( is_plugin_active( 'wp-rocket/wp-rocket.php' ) || file_exists( WP_PLUGIN_DIR . '/wp-rocket/wp-rocket.php' ) ) {
+			$presets['wp-rocket'] = array(
+				'name'  => 'WP Rocket',
+				'links' => array(
+					array(
+						'target' => '../files/wp-rocket-config',
+						'link'   => '/wp-content/wp-rocket-config',
+					),
+					array(
+						'target' => '../files/cache',
+						'link'   => '/wp-content/cache',
+					),
+				),
+			);
+		}
+
+		if ( is_plugin_active( 'tuxedo-big-file-uploads/tuxedo_big_file_uploads.php' ) || file_exists( WP_PLUGIN_DIR . '/tuxedo-big-file-uploads/tuxedo_big_file_uploads.php' ) ) {
+			$presets['big-file-uploads'] = array(
+				'name'  => 'Big File Uploads',
+				'links' => array(
+					array(
+						'target' => '../files/bfu-temp',
+						'link'   => '/wp-content/bfu-temp',
+					),
+				),
+			);
+		}
+
+		if ( is_plugin_active( 'wp-optimize/wp-optimize.php' ) || file_exists( WP_PLUGIN_DIR . '/wp-optimize/wp-optimize.php' ) ) {
+			$presets['wp-optimize'] = array(
+				'name'  => 'WP-Optimize',
+				'links' => array(
+					array(
+						'target' => '../files/wpo-cache',
+						'link'   => '/wp-content/wpo-cache',
+					),
+				),
+			);
+		}
+
+		$divi_theme = wp_get_theme( 'Divi' );
+		if ( $divi_theme->exists() ) {
+			$presets['divi'] = array(
+				'name'  => 'Divi Theme',
+				'links' => array(
+					array(
+						'target' => '../files/et-cache',
+						'link'   => '/wp-content/et-cache',
+					),
+				),
+			);
+		}
+
+		return $presets;
+	}
+
+	/**
+	 * Apply a preset by creating all its symlinks.
+	 *
+	 * @param string $preset_key The preset key to apply.
+	 * @return array { @type int $created, @type int $skipped, @type int $failed }
+	 */
+	public function apply_preset( $preset_key ) {
+		$presets = $this->get_presets();
+		$result  = array(
+			'created'   => 0,
+			'converted' => 0,
+			'skipped'   => 0,
+			'failed'    => 0,
+		);
+
+		if ( ! isset( $presets[ $preset_key ] ) ) {
+			return $result;
+		}
+
+		$homepath      = $this->get_wp_homepath();
+		$original_list = $this->get_symlink_list();
+
+		foreach ( $presets[ $preset_key ]['links'] as $pair ) {
+			$target = $pair['target'];
+			$link   = $homepath . $pair['link'];
+			$status = $this->get_link_status( $link );
+
+			if ( 'symlink' === $status ) {
+				++$result['skipped'];
+				continue;
+			}
+
+			$converted = false;
+			if ( 'exists' === $status ) {
+				$converted = $this->convert_to_symlink( $link, $target, $homepath );
+				if ( ! $converted ) {
+					++$result['failed'];
+					continue;
+				}
+			}
+
+			if ( ! $converted ) {
+				$this->ensure_parent_dir( $link );
+
+				// Ensure the target path exists before symlinking.
+				$target_abs = $this->resolve_target_path( $target, $homepath );
+				if ( pathinfo( $target_abs, PATHINFO_EXTENSION ) ) {
+					$this->ensure_parent_dir( $target_abs );
+				} else {
+					if ( 'none' === $this->get_link_status( $target_abs ) ) {
+						@wp_mkdir_p( $target_abs );
+					}
+				}
+
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.symlink_symlink
+				$created = @symlink( $target, $link );
+
+				if ( ! $created ) {
+					++$result['failed'];
+					continue;
+				}
+			}
+
+			if ( $converted ) {
+				++$result['converted'];
+			} else {
+				++$result['created'];
+			}
+
+			$original_list[] = $pair['link'] . ' -> ' . $pair['target'];
+		}
+
+		$this->save_symlink_list( $original_list );
+
+		return $result;
+	}
+
+	/**
+	 * Remove all symlinks for a preset.
+	 *
+	 * @param string $preset_key The preset key to remove.
+	 * @return array { @type int $removed, @type int $skipped }
+	 */
+	public function remove_preset( $preset_key ) {
+		$presets = $this->get_presets();
+		$result  = array(
+			'removed' => 0,
+			'skipped' => 0,
+		);
+
+		if ( ! isset( $presets[ $preset_key ] ) ) {
+			return $result;
+		}
+
+		$homepath      = $this->get_wp_homepath();
+		$original_list = $this->get_symlink_list();
+
+		foreach ( $presets[ $preset_key ]['links'] as $pair ) {
+			$link = $homepath . $pair['link'];
+
+			if ( 'symlink' !== $this->get_link_status( $link ) ) {
+				++$result['skipped'];
+				continue;
+			}
+
+			$target_abs  = $this->resolve_target_path( $pair['target'], $homepath );
+			$has_content = $target_abs && 'none' !== $this->get_link_status( $target_abs );
+
+			// Safety: copy target contents to temp before touching anything.
+			$temp_path = '';
+			if ( $has_content ) {
+				$temp_path = $homepath . 'wp-content/uploads/easy-symlinks-tmp/' . basename( $link ) . '-' . time();
+				$this->ensure_parent_dir( $temp_path );
+				$this->copy_path( $target_abs, $temp_path );
+			}
+
+			// Remove the symlink.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			$deleted = @unlink( $link );
+
+			if ( ! $deleted ) {
+				$this->remove_path( $temp_path );
+				++$result['skipped'];
+				continue;
+			}
+
+			// Restore files from target to original link location.
+			if ( $has_content ) {
+				$this->ensure_parent_dir( $link );
+				$restored = $this->move_path( $target_abs, $link );
+
+				if ( ! $restored && $temp_path ) {
+					// Last resort: restore from temp backup.
+					$this->move_path( $temp_path, $link );
+				}
+
+				$this->remove_path( $temp_path );
+			}
+
+			$value = $pair['link'] . ' -> ' . $pair['target'];
+			$key   = array_search( $value, $original_list, true );
+			if ( false !== $key ) {
+				unset( $original_list[ $key ] );
+			}
+			++$result['removed'];
+		}
+
+		$this->save_symlink_list( array_values( $original_list ) );
+
+		return $result;
+	}
+
+	/**
+	 * Resolve a relative target path to an absolute path.
+	 *
+	 * @param string $target   Relative or absolute target path.
+	 * @param string $homepath WordPress home path.
+	 * @return string Absolute path.
+	 */
+	private function resolve_target_path( $target, $homepath ) {
+		if ( '/' === $target[0] ) {
+			$target_abs = $target;
+		} else {
+			$target_abs = rtrim( $homepath, '/' ) . '/' . $target;
+		}
+
+		$parts    = array();
+		$segments = explode( '/', $target_abs );
+		foreach ( $segments as $seg ) {
+			if ( '..' === $seg ) {
+				array_pop( $parts );
+			} elseif ( '.' !== $seg && '' !== $seg ) {
+				$parts[] = $seg;
+			}
+		}
+
+		return '/' . implode( '/', $parts );
+	}
+
+	/**
+	 * Convert an existing file/directory to a symlink by moving contents to target.
+	 *
+	 * @param string $link     Full path to the existing file/directory.
+	 * @param string $target   Relative target path for the symlink.
+	 * @param string $homepath WordPress home path.
+	 * @return boolean True if conversion succeeded.
+	 */
+	private function convert_to_symlink( $link, $target, $homepath ) {
+		$target_abs    = $this->resolve_target_path( $target, $homepath );
+		$target_status = $this->get_link_status( $target_abs );
+
+		$this->ensure_parent_dir( $target_abs );
+
+		if ( 'none' === $target_status ) {
+			$moved = $this->move_path( $link, $target_abs );
+		} else {
+			// Target already has content — merge and remove source.
+			$this->copy_path( $link, $target_abs );
+			$this->remove_path( $link );
+			$moved = ( 'none' === $this->get_link_status( $link ) );
+		}
+
+		if ( ! $moved ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.symlink_symlink
+		return @symlink( $target, $link );
+	}
+
+	/**
+	 * Recursively copy a directory.
+	 *
+	 * @param string $source Source directory.
+	 * @param string $dest   Destination directory.
+	 * @return void
+	 */
+	private function copy_directory( $source, $dest ) {
+		if ( ! is_dir( $dest ) ) {
+			@wp_mkdir_p( $dest );
+		}
+
+		$dir = opendir( $source );
+		if ( ! $dir ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		while ( false !== ( $file = readdir( $dir ) ) ) {
+			if ( '.' === $file || '..' === $file ) {
+				continue;
+			}
+
+			$src_path  = $source . '/' . $file;
+			$dest_path = $dest . '/' . $file;
+
+			if ( is_dir( $src_path ) ) {
+				$this->copy_directory( $src_path, $dest_path );
+			} else {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_copy
+				@copy( $src_path, $dest_path );
+			}
+		}
+
+		closedir( $dir );
+	}
+
+	/**
+	 * Recursively remove a directory.
+	 *
+	 * @param string $dir Directory to remove.
+	 * @return void
+	 */
+	private function remove_directory( $dir ) {
+		if ( ! is_dir( $dir ) ) {
+			return;
+		}
+
+		$items = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS ),
+			RecursiveIteratorIterator::CHILD_FIRST
+		);
+
+		foreach ( $items as $item ) {
+			if ( $item->isDir() ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+				@rmdir( $item->getRealPath() );
+			} else {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+				@unlink( $item->getRealPath() );
+			}
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+		@rmdir( $dir );
+	}
+
+	/**
 	 * Create folder for symlinks.
 	 *
 	 * @param string $target Hook parameter.
@@ -284,7 +737,7 @@ class Easy_Symlinks_Functions {
 			return true;
 		}
 
-		return wp_mkdir_p( $dir );
+		return @wp_mkdir_p( $dir );
 	}
 
 }

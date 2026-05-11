@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Easy Symlinks
- * Version: 1.0.5
+ * Version: 2.0.0
  * Plugin URI: http://wordpress.org/plugins/easy-symlinks
  * Description: Manage symbolic links from the WordPress admin. Create and delete symlinks without CLI access, ideal for Pantheon environments.
  * Author: Carl Alberto
@@ -36,7 +36,7 @@ require_once 'includes/lib/class-easy-symlinks-functions.php';
  * @return object Easy_Symlinks
  */
 function easy_symlinks() {
-	$instance = Easy_Symlinks::instance( __FILE__, '1.0.5' );
+	$instance = Easy_Symlinks::instance( __FILE__, '2.0.0' );
 
 	if ( is_null( $instance->settings ) ) {
 		$instance->settings = Easy_Symlinks_Settings::instance( $instance );
