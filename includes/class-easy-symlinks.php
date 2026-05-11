@@ -124,14 +124,19 @@ class Easy_Symlinks {
 		if ( isset( $_GET['settings-updated'] ) ) {
 			if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $nonce, 'savenew' ) ) ) ) {
 				$updated = sanitize_text_field( wp_unslash( $_GET['settings-updated'] ) );
-				if ( isset( $_GET['tab'] ) ) {
-					$tab = sanitize_text_field( wp_unslash( $_GET['tab'] ) );
-					if ( ( 'true' === $updated ) && ( ( 'add' === $tab ) || ( null === $tab ) ) ) {
-						$links->save_symlinks();
-					}
-				} else {
-					if ( ( 'true' === $updated ) ) {
-						$links->save_symlinks();
+				$tab     = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : '';
+
+				if ( 'true' === $updated && ( 'add' === $tab || '' === $tab ) ) {
+					// Remove WP default "Settings saved." notice.
+					global $wp_settings_errors;
+					$wp_settings_errors = array();
+					delete_transient( 'settings_errors' );
+
+					$result = $links->save_symlinks();
+					if ( false === $result ) {
+						add_settings_error( 'SymlinkError', 'symlink_exists', __( 'Symlink already exists at that path. Remove it first before creating a new one.', 'easy-symlinks' ), 'error' );
+					} else {
+						add_settings_error( 'SymlinkError', 'symlink_created', __( 'Symlink created successfully.', 'easy-symlinks' ), 'updated' );
 					}
 				}
 			}
@@ -153,7 +158,16 @@ class Easy_Symlinks {
 					$updated = sanitize_text_field( wp_unslash( $_GET['settings-updated'] ) );
 					$tab     = sanitize_text_field( wp_unslash( $_GET['tab'] ) );
 					if ( ( 'true' === $updated ) && ( 'delete' === $tab ) ) {
-						$links->delete_symlink();
+						global $wp_settings_errors;
+						$wp_settings_errors = array();
+						delete_transient( 'settings_errors' );
+
+						$result = $links->delete_symlink();
+						if ( $result ) {
+							add_settings_error( 'SymlinkError', 'symlink_deleted', __( 'Symlink deleted successfully.', 'easy-symlinks' ), 'updated' );
+						} else {
+							add_settings_error( 'SymlinkError', 'symlink_delete_failed', __( 'Failed to delete symlink.', 'easy-symlinks' ), 'error' );
+						}
 					}
 				}
 			}
@@ -171,8 +185,15 @@ class Easy_Symlinks {
 	 * @since   1.0.0
 	 */
 	public function admin_enqueue_scripts( $hook = '' ) {
+		if ( 'settings_page_' . $this->token . '_settings' !== $hook ) {
+			return;
+		}
+
 		wp_register_script( $this->token . '-admin', esc_url( $this->assets_url ) . 'js/admin' . $this->script_suffix . '.js', array( 'jquery' ), $this->version, true );
 		wp_enqueue_script( $this->token . '-admin' );
+
+		wp_register_style( $this->token . '-admin', esc_url( $this->assets_url ) . 'css/admin.css', array(), $this->version );
+		wp_enqueue_style( $this->token . '-admin' );
 	} // End admin_enqueue_scripts ()
 
 	/**
@@ -249,10 +270,7 @@ class Easy_Symlinks {
 	 * @return void
 	 */
 	public function wp_admin_scripts() {
-		global $pagenow;
-		if ( 'options-general.php' === $pagenow ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 10, 1 );
-		}
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 10, 1 );
 	}
 
 	/**
@@ -261,7 +279,7 @@ class Easy_Symlinks {
 	 * @param string $file File constructor.
 	 * @param string $version Plugin version.
 	 */
-	public function __construct( $file = '', $version = '1.0.3' ) {
+	public function __construct( $file = '', $version = '1.0.5' ) {
 		$this->version = $version;
 		$this->token   = 'easy_symlinks';
 
@@ -303,7 +321,7 @@ class Easy_Symlinks {
 	 * @since 1.0.0
 	 * @static
 	 */
-	public static function instance( $file = '', $version = '1.0.3' ) {
+	public static function instance( $file = '', $version = '1.0.5' ) {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self( $file, $version );
 		}

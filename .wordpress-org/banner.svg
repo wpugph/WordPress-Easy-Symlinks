@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1544 500">
+  <defs>
+    <linearGradient id="bannerbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#2d2d2d"/>
+    </linearGradient>
+    <linearGradient id="goldshine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE55C"/>
+      <stop offset="100%" stop-color="#FFDC28"/>
+    </linearGradient>
+  </defs>
+  <rect width="1544" height="500" fill="url(#bannerbg)"/>
+
+  <!-- Decorative dots pattern -->
+  <g opacity="0.06">
+    <circle cx="50" cy="50" r="3" fill="#ffffff"/>
+    <circle cx="100" cy="50" r="3" fill="#ffffff"/>
+    <circle cx="150" cy="50" r="3" fill="#ffffff"/>
+    <circle cx="50" cy="100" r="3" fill="#ffffff"/>
+    <circle cx="100" cy="100" r="3" fill="#ffffff"/>
+    <circle cx="150" cy="100" r="3" fill="#ffffff"/>
+    <circle cx="50" cy="150" r="3" fill="#ffffff"/>
+    <circle cx="100" cy="150" r="3" fill="#ffffff"/>
+    <circle cx="150" cy="150" r="3" fill="#ffffff"/>
+    <circle cx="1394" cy="350" r="3" fill="#ffffff"/>
+    <circle cx="1444" cy="350" r="3" fill="#ffffff"/>
+    <circle cx="1494" cy="350" r="3" fill="#ffffff"/>
+    <circle cx="1394" cy="400" r="3" fill="#ffffff"/>
+    <circle cx="1444" cy="400" r="3" fill="#ffffff"/>
+    <circle cx="1494" cy="400" r="3" fill="#ffffff"/>
+    <circle cx="1394" cy="450" r="3" fill="#ffffff"/>
+    <circle cx="1444" cy="450" r="3" fill="#ffffff"/>
+    <circle cx="1494" cy="450" r="3" fill="#ffffff"/>
+  </g>
+
+  <!-- Symlink chain icon (left side) -->
+  <g transform="translate(350,250)">
+    <g transform="rotate(-45)">
+      <rect x="-80" y="-25" width="95" height="50" rx="25" fill="none" stroke="#FFDC28" stroke-width="12"/>
+    </g>
+    <g transform="rotate(-45)">
+      <rect x="-15" y="-25" width="95" height="50" rx="25" fill="none" stroke="#ffffff" stroke-width="12"/>
+    </g>
+  </g>
+
+  <!-- Plugin name -->
+  <text x="520" y="230" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="72" font-weight="700" fill="#ffffff" letter-spacing="-1">Easy Symlinks</text>
+
+  <!-- Tagline -->
+  <text x="522" y="290" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="400" fill="#999999">Manage symlinks from the WordPress admin</text>
+
+  <!-- Gold accent line -->
+  <rect x="520" y="310" width="80" height="4" rx="2" fill="#FFDC28"/>
+</svg>

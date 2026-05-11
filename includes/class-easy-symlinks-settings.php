@@ -184,7 +184,7 @@ class Easy_Symlinks_Settings {
 
 		if ( ( null === $symlinks_array ) || ( empty( $symlinks_array ) ) ) {
 
-			$symlinks_array = array();
+			$symlinks_array = array( '' => 'No symlinks saved yet, nothing to delete' );
 			$desc           = 'No symlinks yet, please add one before you can delete.';
 		} else {
 			$desc = 'Select the symlink pair that you want to delete;';
@@ -225,6 +225,20 @@ class Easy_Symlinks_Settings {
 					'description' => '',
 					'type'        => 'select_multi',
 					'options'     => $symlinks_array,
+				),
+			),
+		);
+
+		$settings['settings'] = array(
+			'title'       => __( 'Settings', 'easy-symlinks' ),
+			'description' => '',
+			'fields'      => array(
+				array(
+					'id'          => 'delete_data_on_uninstall',
+					'label'       => __( 'Delete data on uninstall', 'easy-symlinks' ),
+					'description' => __( 'Remove all plugin data from the database when the plugin is deleted.', 'easy-symlinks' ),
+					'type'        => 'checkbox',
+					'default'     => '',
 				),
 			),
 		);
@@ -397,6 +411,7 @@ class Easy_Symlinks_Settings {
 		echo '<div class="wrap" id="' . esc_html( $this->parent->token ) . '_settings">' . "\n";
 		echo '<h2>' . esc_html( __( 'Easy Symlinks Management', 'easy-symlinks' ) ) . '</h2>' . "\n";
 		echo wp_kses( $this->render_environment_banner( $env ), $sanitisation->allowed_htmls );
+		echo '<div class="caes-wrap">' . "\n";
 
 		if ( ! $writestatus['status'] ) {
 			echo '</div>';
@@ -424,27 +439,29 @@ class Easy_Symlinks_Settings {
 		// Show page tabs.
 		if ( is_array( $this->settings ) && 1 < count( $this->settings ) ) {
 
-			$html .= '<h2 class="nav-tab-wrapper">' . "\n";
+			$html .= '<div class="caes-tabs">' . "\n";
 
 			$c = 0;
 			foreach ( $this->settings as $section => $data ) {
 
 				// Set tab class.
-				$class = 'nav-tab';
+				$class = 'caes-tab';
 				if ( ! isset( $_GET['tab'] ) ) {
 					$button_label = 'Save Symlink';
 					if ( 0 === $c ) {
-						$class .= ' nav-tab-active';
+						$class .= ' caes-tab-active';
 					}
 				} else {
 					if ( isset( $_GET['tab'] ) && $section === $_GET['tab'] ) {
 						$tab = sanitize_text_field( wp_unslash( $_GET['tab'] ) );
 						if ( 'delete' === $tab ) {
 							$button_label = 'Delete Symlink';
+						} elseif ( 'settings' === $tab ) {
+							$button_label = 'Save Settings';
 						} else {
 							$button_label = 'Save Symlink';
 						}
-						$class .= ' nav-tab-active';
+						$class .= ' caes-tab-active';
 					}
 				}
 
@@ -468,7 +485,7 @@ class Easy_Symlinks_Settings {
 				++$c;
 			}
 
-			$html .= '</h2>' . "\n";
+			$html .= '</div>' . "\n";
 		}
 
 			$html .= '<form method="post" action="options.php" enctype="multipart/form-data">' . "\n";
@@ -482,9 +499,14 @@ class Easy_Symlinks_Settings {
 				$html     .= '<p class="submit">' . "\n";
 					$html .= '<input type="hidden" name="caes_nonce" id="caes_nonce" value="' . esc_html( $nonce ) . '" />';
 					$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
-					$html .= '<input name="Submit" type="submit" class="button-primary" value="' . $button_label . '" />' . "\n";
+					$submit_class = 'button-primary';
+		if ( 'delete' === $tab ) {
+			$submit_class .= ' caes-submit-delete';
+		}
+					$html .= '<input name="Submit" type="submit" class="' . esc_attr( $submit_class ) . '" value="' . esc_attr( $button_label ) . '" />' . "\n";
 				$html     .= '</p>' . "\n";
 			$html         .= '</form>' . "\n";
+		$html             .= '</div>' . "\n";
 		$html             .= '</div>' . "\n";
 
 		echo wp_kses( $html, $sanitisation->allowed_htmls );
@@ -533,30 +555,16 @@ class Easy_Symlinks_Settings {
 	 * @return string
 	 */
 	public function validate_target( $data ) {
-		$message = null;
-		$type    = null;
+		if ( ! isset( $_POST['caes_nonce'] ) ) {
+			return $data;
+		}
 
-		if ( '' !== $data ) {
-			if ( false === get_option( 'caes_target' ) ) {
-				$type    = 'added';
-				$message = __( 'Target Successfully saved', 'easy-symlinks' );
-				$this->validation_msg( $message, $type );
-				return $data;
-			} else {
-				$type    = 'updated';
-				$message = __( 'Target Successfully updated', 'easy-symlinks' );
-				$this->validation_msg( $message, $type );
-				return $data;
-			}
-			// Additional conditionals here.
-			// - Should be an existing path.
-		} else {
-			// Value must not be null.
-			$type    = 'error';
-			$message = __( 'Target can not be empty', 'easy-symlinks' );
-			$this->validation_msg( $message, $type );
+		if ( '' === $data ) {
+			$this->validation_msg( __( 'Target can not be empty', 'easy-symlinks' ), 'error', 'target_empty' );
 			return get_option( 'caes_target' );
 		}
+
+		return $data;
 	}
 
 	/**
@@ -566,30 +574,16 @@ class Easy_Symlinks_Settings {
 	 * @return string
 	 */
 	public function validate_link( $data ) {
-		$message = null;
-		$type    = null;
-		if ( '' !== $data ) {
-			if ( false === get_option( 'caes_link' ) ) {
-				$type    = 'added';
-				$message = __( 'Link Successfully saved', 'easy-symlinks' );
-				$this->validation_msg( $message, $type );
-				return $data;
-			} else {
-				$type    = 'updated';
-				$message = __( 'Link Successfully updated', 'easy-symlinks' );
-				$this->validation_msg( $message, $type );
-				return $data;
-			}
-			// Additional conditionals here.
-			// - Should be an existing path.
-		} else {
-			// Value must not be null.
-			$type    = 'error';
-			$message = __( 'Link can not be empty', 'easy-symlinks' );
-			$this->validation_msg( $message, $type );
+		if ( ! isset( $_POST['caes_nonce'] ) ) {
+			return $data;
+		}
+
+		if ( '' === $data ) {
+			$this->validation_msg( __( 'Link can not be empty', 'easy-symlinks' ), 'error', 'link_empty' );
 			return get_option( 'caes_link' );
 		}
 
+		return $data;
 	}
 
 	/**
@@ -597,12 +591,13 @@ class Easy_Symlinks_Settings {
 	 *
 	 * @param string $message Message for the error message.
 	 * @param string $type Error, updated or added.
+	 * @param string $code Unique error code.
 	 * @return boolean
 	 */
-	public function validation_msg( $message, $type ) {
+	public function validation_msg( $message, $type, $code = 'settings_updated' ) {
 		add_settings_error(
 			'SymlinkError',
-			esc_attr( 'settings_updated' ),
+			esc_attr( $code ),
 			$message,
 			$type
 		);

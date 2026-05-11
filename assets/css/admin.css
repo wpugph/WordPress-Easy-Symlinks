@@ -1,0 +1,112 @@
+/* Easy Symlinks Admin Styles */
+
+/* Card container */
+.caes-wrap {
+	max-width: 800px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	padding: 24px 24px 16px;
+	margin-top: 20px;
+}
+
+/* Tabs — button style */
+.caes-tabs {
+	display: flex;
+	gap: 8px;
+	margin: 0 0 24px;
+}
+
+.caes-tab {
+	display: inline-block;
+	padding: 10px 24px;
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 1.5;
+	text-decoration: none;
+	color: #2271b1;
+	background: #f6f7f7;
+	border: 1px solid #2271b1;
+	cursor: pointer;
+}
+
+.caes-tab:hover {
+	background: #f0f0f1;
+	color: #135e96;
+}
+
+.caes-tab-active,
+.caes-tab-active:hover {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+}
+
+/* Full-width inputs */
+.caes-field {
+	width: 100%;
+	max-width: 100%;
+	padding: 8px 12px;
+	border: 1px solid #8c8f94;
+	font-size: 14px;
+	box-sizing: border-box;
+}
+
+.caes-field:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+/* Override WP form-table inside card */
+.caes-wrap .form-table {
+	border: 0;
+	margin: 0;
+}
+
+.caes-wrap .form-table th {
+	padding: 20px 0 4px;
+	font-size: 14px;
+	font-weight: 600;
+	width: auto;
+}
+
+.caes-wrap .form-table td {
+	padding: 0 0 12px;
+}
+
+.caes-wrap .form-table td .description {
+	display: block;
+	margin: 0 0 8px;
+	padding: 10px 20px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #646970;
+}
+
+/* Description above input */
+.caes-wrap .form-table td {
+	display: flex;
+	flex-direction: column-reverse;
+}
+
+.caes-wrap .form-table td label {
+	display: flex;
+	flex-direction: column-reverse;
+	gap: 8px;
+}
+
+/* Red destructive button for delete tab */
+.caes-submit-delete {
+	background: #d63638 !important;
+	border-color: #d63638 !important;
+	color: #fff !important;
+}
+
+.caes-submit-delete:hover {
+	background: #b32d2e !important;
+	border-color: #b32d2e !important;
+}
+
+.caes-submit-delete:focus {
+	box-shadow: 0 0 0 1px #fff, 0 0 0 3px #d63638 !important;
+}
