@@ -269,12 +269,14 @@ class Easy_Symlinks_Admin_API {
 		'span'   => [
 			'class' => [],
 			'title' => [],
+			'style' => [],
 		],
 		'table'  => [
 			'scope' => [],
 			'title' => [],
 			'class' => [],
 			'role'  => [],
+			'style' => [],
 		],
 		'tbody'  => [
 			'scope' => [],
@@ -286,9 +288,15 @@ class Easy_Symlinks_Admin_API {
 			'scope' => [],
 			'title' => [],
 		],
-		'tr'     => [],
-		'td'     => [],
-		'p'      => [],
+		'tr'     => [
+			'style' => [],
+		],
+		'td'     => [
+			'style' => [],
+		],
+		'p'      => [
+			'style' => [],
+		],
 		'br'     => [],
 		'em'     => [],
 		'strong' => [],
@@ -307,6 +315,7 @@ class Easy_Symlinks_Admin_API {
 		'div'    => [
 			'class' => [],
 			'id'    => [],
+			'style' => [],
 		],
 	];
 }
