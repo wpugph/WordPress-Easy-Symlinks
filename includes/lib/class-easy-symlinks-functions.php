@@ -412,6 +412,18 @@ class Easy_Symlinks_Functions {
 			);
 		}
 
+		if ( is_plugin_active( 'wp-optimize/wp-optimize.php' ) || file_exists( WP_PLUGIN_DIR . '/wp-optimize/wp-optimize.php' ) ) {
+			$presets['wp-optimize'] = array(
+				'name'  => 'WP-Optimize',
+				'links' => array(
+					array(
+						'target' => '../files/wpo-cache',
+						'link'   => '/wp-content/wpo-cache',
+					),
+				),
+			);
+		}
+
 		$divi_theme = wp_get_theme( 'Divi' );
 		if ( $divi_theme->exists() ) {
 			$presets['divi'] = array(
