@@ -101,14 +101,29 @@ class Easy_Symlinks_Functions {
 		$original = maybe_unserialize( get_option( 'caes_symlink_list' ) );
 		$todelete = maybe_unserialize( get_option( 'caes_symlink_list_lastdelete' ) );
 
-		$del            = $todelete[0];
+		if ( empty( $todelete ) || empty( $original ) ) {
+			return false;
+		}
+
+		$del = $todelete[0];
+
+		if ( ! isset( $original[ $del ] ) ) {
+			return false;
+		}
+
 		$path_todelete  = $original[ $del ];
 		$path_todelete1 = strstr( $path_todelete, ' -> ', true );
+		$full_path      = $homepath . $path_todelete1;
+
 		unset( $original[ $del ] );
-		$option = 'caes_symlink_list';
-		update_option( $option, maybe_serialize( $original ) );
-		$return = unlink( $homepath . $path_todelete1 );
-		return $return;
+		update_option( 'caes_symlink_list', maybe_serialize( $original ) );
+
+		if ( ! is_link( $full_path ) ) {
+			return true;
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+		return @unlink( $full_path );
 	}
 
 	/**
@@ -125,14 +140,24 @@ class Easy_Symlinks_Functions {
 		$target        = $source; // This should be existing.
 		$link          = $homepath . $destination; // This is the one created.
 
-		symlink( $target, $link );
-		// add additional checks here
-		// check if already added
-		// successfully add
-		// fail error.
-		$value = $destination . ' -> ' . $source;
+		if ( is_link( $link ) || file_exists( $link ) ) {
+			return false;
+		}
+
+		$link_parent = dirname( $link );
+		if ( ! is_dir( $link_parent ) ) {
+			wp_mkdir_p( $link_parent );
+		}
 
 		$this->create_folder( $target );
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.symlink_symlink
+		$created = @symlink( $target, $link );
+		if ( ! $created ) {
+			return false;
+		}
+
+		$value = $destination . ' -> ' . $source;
 
 		if ( $original_list ) {
 			$new = array_push( $original_list, $value );
@@ -249,12 +274,17 @@ class Easy_Symlinks_Functions {
 	public function create_folder( $target ) {
 		$homepath = $this->get_wp_homepath();
 
-		// Get the target folder name.
-		if ( preg_match( '/\/uploads\/\W?\K.*/', $target, $matches ) ) {
-			// Create target folder under uploads folder.
-			$status = mkdir( $homepath . '/wp-content/uploads/' . $matches[0], 0777, true );
+		if ( ! preg_match( '/\/uploads\/\W?\K.*/', $target, $matches ) ) {
+			return false;
 		}
-		return $status;
+
+		$dir = $homepath . '/wp-content/uploads/' . $matches[0];
+
+		if ( is_dir( $dir ) ) {
+			return true;
+		}
+
+		return wp_mkdir_p( $dir );
 	}
 
 }
