@@ -5,7 +5,7 @@ Tags: symlink, symlinks, pantheon, file-management, developer-tools
 Requires at least: 4.9
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.5
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,11 +24,12 @@ Easy Symlinks lets you create and manage symbolic links (symlinks) directly from
 * Displays existing symlinks and their targets
 * Tracks only symlinks created through the plugin
 * Duplicate symlink detection — prevents creating symlinks that already exist
+* Preset symlinks — auto-detects plugins like Wordfence and offers one-click symlink setup
 * Optional database cleanup on plugin uninstall via Settings tab
 
 **How to use:**
 
-Navigate to **Settings > Easy Symlinks** in your WordPress admin dashboard. Use the "Add Symlinks" tab to create new symlinks, the "Delete Symlinks" tab to remove them, and the "Settings" tab to configure plugin options like database cleanup on uninstall.
+Navigate to **Settings > Easy Symlinks** in your WordPress admin dashboard. The "Presets" tab auto-detects installed plugins that need symlinks (e.g., Wordfence on Pantheon). Use the "Add Symlinks" tab to create custom symlinks, the "Delete Symlinks" tab to remove them, and the "Settings" tab to configure plugin options.
 
 For common symlink configurations on Pantheon, refer to the [list of common symlinks](https://wordpress.org/support/topic/list-of-common-symlinks-in-pantheon).
 
@@ -79,6 +80,10 @@ Yes, the plugin works on any hosting environment where the filesystem is writabl
 
 The symlinks themselves remain on the filesystem. Deactivating the plugin only removes the admin interface — the actual symlinks are not deleted.
 
+= What are Presets? =
+
+Presets auto-detect installed plugins that are known to need symlinks on Pantheon (e.g., Wordfence). The Presets tab shows detected plugins with their required symlink paths and lets you apply them with a single click. Currently supported: Wordfence.
+
 = Can I remove all plugin data from the database? =
 
 Yes. Go to **Settings > Easy Symlinks > Settings** tab and check "Delete data on uninstall." When the plugin is deleted, all saved options will be removed from the database.
@@ -89,11 +94,26 @@ No. This plugin only tracks symlinks that were created through its own interface
 
 == Screenshots ==
 
-1. The Add Symlinks form in the WordPress admin — enter a target directory and link path to create a new symlink.
-2. Environment detection showing writable and read-only status indicators for Pantheon hosting environments.
-3. The Delete Symlinks interface with a dropdown list of active symlinks to remove.
+1. The Presets tab showing auto-detected Wordfence plugin with symlink paths and status indicators.
+2. The Add Symlinks form — enter a target directory and link path to create a new symlink.
+3. Environment detection showing writable and read-only status indicators for Pantheon hosting environments.
+4. The Delete Symlinks interface with a dropdown list of active symlinks to remove.
 
 == Changelog ==
+
+= 2.0.0 =
+* 2026-05-11
+* New: Presets tab — auto-detects plugins that need symlinks for Pantheon compatibility
+* New: Wordfence preset with wflogs, wordfence-waf.php, and .user.ini symlinks
+* New: One-click apply for preset symlinks with status indicators (Active/Not created)
+* New: Settings tab with "Delete data on uninstall" option for database cleanup
+* New: Duplicate symlink detection — prevents re-creating existing symlinks
+* Improved: Clear error/success notifications for all symlink actions
+* Improved: Removed redundant "Settings saved" notice
+* Improved: Empty state message in delete dropdown when no symlinks exist
+* Fixed: PHP warnings in save/delete that broke HTTP headers
+* Fixed: Admin CSS and JS not loading on settings page
+* Compatibility: WordPress 6.8, PHP 7.4-8.4
 
 = 1.0.5 =
 * 2026-05-11
@@ -132,6 +152,9 @@ No. This plugin only tracks symlinks that were created through its own interface
 * Added checks for Pantheon environment and writable filesystem
 
 == Upgrade Notice ==
+
+= 2.0.0 =
+Major update: Presets tab for one-click Wordfence symlinks, duplicate detection, database cleanup option, modernized UI. WordPress 6.8 compatible. No breaking changes.
 
 = 1.0.5 =
 Compatibility update for WordPress 6.8. Modernized admin UI, duplicate symlink detection, database cleanup option, and multiple bug fixes. No breaking changes.
