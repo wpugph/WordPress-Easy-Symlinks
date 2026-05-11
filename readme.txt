@@ -94,10 +94,11 @@ No. This plugin only tracks symlinks that were created through its own interface
 
 == Screenshots ==
 
-1. The Presets tab showing auto-detected Wordfence plugin with symlink paths and status indicators.
-2. The Add Symlinks form — enter a target directory and link path to create a new symlink.
-3. Environment detection showing writable and read-only status indicators for Pantheon hosting environments.
-4. The Delete Symlinks interface with a dropdown list of active symlinks to remove.
+1. The Add Symlinks tab — enter a target directory and link path to create a new symlink.
+2. The Presets tab showing auto-detected Wordfence plugin with symlink paths and status indicators.
+3. The Settings tab with the "Delete data on uninstall" option for database cleanup.
+4. The Delete Symlinks tab with a dropdown list of active symlinks to remove.
+5. The Remove Presets tab showing applied Wordfence symlinks with status and one-click removal.
 
 == Changelog ==
 
