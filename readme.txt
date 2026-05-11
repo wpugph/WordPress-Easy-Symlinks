@@ -82,7 +82,7 @@ The symlinks themselves remain on the filesystem. Deactivating the plugin only r
 
 = What are Presets? =
 
-Presets auto-detect installed plugins that are known to need symlinks on Pantheon (e.g., Wordfence). The Presets tab shows detected plugins with their required symlink paths and lets you apply them with a single click. Currently supported: Wordfence.
+Presets auto-detect installed plugins that are known to need symlinks on Pantheon. The Presets tab shows detected plugins with their required symlink paths and lets you apply them with a single click. Currently supported: Wordfence, WP Rocket, Big File Uploads, Divi Theme.
 
 = Can I remove all plugin data from the database? =
 
@@ -106,6 +106,9 @@ No. This plugin only tracks symlinks that were created through its own interface
 * 2026-05-11
 * New: Presets tab — auto-detects plugins that need symlinks for Pantheon compatibility
 * New: Wordfence preset with wflogs, wordfence-waf.php, and .user.ini symlinks
+* New: WP Rocket preset with wp-rocket-config and cache symlinks
+* New: Big File Uploads preset with bfu-temp symlink
+* New: Divi Theme preset with et-cache symlink
 * New: One-click apply for preset symlinks with status indicators (Active/Not created)
 * New: Remove Presets tab — safely removes preset symlinks and restores original files
 * New: Smart file conversion — moves existing files to target location before symlinking

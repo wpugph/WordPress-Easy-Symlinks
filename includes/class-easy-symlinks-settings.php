@@ -428,7 +428,7 @@ class Easy_Symlinks_Settings {
 		}
 
 		if ( empty( $presets ) ) {
-			$html .= '<p>' . esc_html__( 'No plugins detected that need symlinks. Install and activate a supported plugin (e.g. Wordfence) to see presets here.', 'easy-symlinks' ) . '</p>';
+			$html .= '<p>' . esc_html__( 'No plugins detected that need symlinks. Install a supported plugin (e.g. Wordfence, WP Rocket) to see presets here.', 'easy-symlinks' ) . '</p>';
 			return $html;
 		}
 
@@ -437,6 +437,8 @@ class Easy_Symlinks_Settings {
 		$form_action  = $is_remove ? 'remove_presets' : 'apply_presets';
 		$button_text  = $is_remove ? __( 'Remove Selected Presets', 'easy-symlinks' ) : __( 'Apply Selected Presets', 'easy-symlinks' );
 		$button_class = $is_remove ? 'button-primary caes-submit-delete' : 'button-primary';
+
+		$html .= '<h3 style="margin:0 0 16px;font-size:14px;font-weight:600;">' . esc_html__( 'Detected plugins/themes for symlink compatibility', 'easy-symlinks' ) . '</h3>' . "\n";
 
 		$html .= '<form method="post" action="">' . "\n";
 		$html .= wp_nonce_field( $nonce_action, 'caes_presets_nonce', true, false );
@@ -605,6 +607,12 @@ class Easy_Symlinks_Settings {
 			$html         .= '</form>' . "\n";
 		}
 		$html             .= '</div>' . "\n";
+		$html             .= '<p style="margin-top:24px;color:#646970;font-size:13px;">';
+		$html             .= esc_html__( 'Your plugin/theme is not detected?', 'easy-symlinks' ) . ' ';
+		$html             .= '<a href="https://github.com/wpugph/WordPress-Easy-Symlinks/issues" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Open an issue on GitHub', 'easy-symlinks' ) . '</a>';
+		$html             .= ' ' . esc_html__( 'or', 'easy-symlinks' ) . ' ';
+		$html             .= '<a href="https://wordpress.org/support/plugin/easy-symlinks/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'file a support ticket', 'easy-symlinks' ) . '</a>.';
+		$html             .= '</p>' . "\n";
 		$html             .= '</div>' . "\n";
 
 		echo wp_kses( $html, $sanitisation->allowed_htmls );

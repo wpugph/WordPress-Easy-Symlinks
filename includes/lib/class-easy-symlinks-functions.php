@@ -384,6 +384,47 @@ class Easy_Symlinks_Functions {
 			);
 		}
 
+		if ( is_plugin_active( 'wp-rocket/wp-rocket.php' ) || file_exists( WP_PLUGIN_DIR . '/wp-rocket/wp-rocket.php' ) ) {
+			$presets['wp-rocket'] = array(
+				'name'  => 'WP Rocket',
+				'links' => array(
+					array(
+						'target' => '../files/wp-rocket-config',
+						'link'   => '/wp-content/wp-rocket-config',
+					),
+					array(
+						'target' => '../files/cache',
+						'link'   => '/wp-content/cache',
+					),
+				),
+			);
+		}
+
+		if ( is_plugin_active( 'tuxedo-big-file-uploads/tuxedo_big_file_uploads.php' ) || file_exists( WP_PLUGIN_DIR . '/tuxedo-big-file-uploads/tuxedo_big_file_uploads.php' ) ) {
+			$presets['big-file-uploads'] = array(
+				'name'  => 'Big File Uploads',
+				'links' => array(
+					array(
+						'target' => '../files/bfu-temp',
+						'link'   => '/wp-content/bfu-temp',
+					),
+				),
+			);
+		}
+
+		$divi_theme = wp_get_theme( 'Divi' );
+		if ( $divi_theme->exists() ) {
+			$presets['divi'] = array(
+				'name'  => 'Divi Theme',
+				'links' => array(
+					array(
+						'target' => '../files/et-cache',
+						'link'   => '/wp-content/et-cache',
+					),
+				),
+			);
+		}
+
 		return $presets;
 	}
 

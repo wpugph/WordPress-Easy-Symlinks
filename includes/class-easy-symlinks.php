@@ -113,6 +113,23 @@ class Easy_Symlinks {
 	}
 
 	/**
+	 * Add a Pantheon commit/deploy reminder notice if on Pantheon.
+	 *
+	 * @return void
+	 */
+	private function add_pantheon_reminder() {
+		if ( ! isset( $_ENV['PANTHEON_ENVIRONMENT'] ) ) {
+			return;
+		}
+		add_settings_error(
+			'SymlinkError',
+			'pantheon_reminder',
+			'<strong>&#9888; ' . esc_html__( 'Action required:', 'easy-symlinks' ) . '</strong> ' . esc_html__( 'Commit these changes in the Pantheon dashboard and deploy to Test and Live environments.', 'easy-symlinks' ),
+			'warning'
+		);
+	}
+
+	/**
 	 * Save new symlinks.
 	 *
 	 * @return void
@@ -137,6 +154,7 @@ class Easy_Symlinks {
 						add_settings_error( 'SymlinkError', 'symlink_exists', __( 'Symlink already exists at that path. Remove it first before creating a new one.', 'easy-symlinks' ), 'error' );
 					} else {
 						add_settings_error( 'SymlinkError', 'symlink_created', __( 'Symlink created successfully.', 'easy-symlinks' ), 'updated' );
+						$this->add_pantheon_reminder();
 					}
 				}
 			}
@@ -165,6 +183,7 @@ class Easy_Symlinks {
 						$result = $links->delete_symlink();
 						if ( $result ) {
 							add_settings_error( 'SymlinkError', 'symlink_deleted', __( 'Symlink deleted successfully.', 'easy-symlinks' ), 'updated' );
+							$this->add_pantheon_reminder();
 						} else {
 							add_settings_error( 'SymlinkError', 'symlink_delete_failed', __( 'Failed to delete symlink.', 'easy-symlinks' ), 'error' );
 						}
@@ -233,6 +252,10 @@ class Easy_Symlinks {
 
 		$type = $total_failed > 0 ? 'error' : 'updated';
 		add_settings_error( 'SymlinkError', 'presets_applied', implode( '. ', $messages ) . '.', $type );
+
+		if ( ( $total_created > 0 || $total_converted > 0 ) && 0 === $total_failed ) {
+			$this->add_pantheon_reminder();
+		}
 	}
 
 	/**
@@ -285,6 +308,10 @@ class Easy_Symlinks {
 		}
 
 		add_settings_error( 'SymlinkError', 'presets_removed', implode( '. ', $messages ) . '.', 'updated' );
+
+		if ( $total_removed > 0 ) {
+			$this->add_pantheon_reminder();
+		}
 	}
 
 	/**
