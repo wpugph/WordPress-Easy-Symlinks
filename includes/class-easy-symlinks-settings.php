@@ -190,6 +190,18 @@ class Easy_Symlinks_Settings {
 			$desc = 'Select the symlink pair that you want to delete;';
 		}
 
+		$settings['presets'] = array(
+			'title'       => __( 'Presets', 'easy-symlinks' ),
+			'description' => __( 'Auto-detected plugins that need symlinks for Pantheon compatibility.', 'easy-symlinks' ),
+			'fields'      => array(),
+		);
+
+		$settings['remove_presets'] = array(
+			'title'       => __( 'Remove Presets', 'easy-symlinks' ),
+			'description' => __( 'Remove preset symlinks that were previously applied.', 'easy-symlinks' ),
+			'fields'      => array(),
+		);
+
 		$settings['add'] = array(
 			'title'       => __( 'Add Symlinks', 'easy-symlinks' ),
 			'description' => '',
@@ -395,6 +407,82 @@ class Easy_Symlinks_Settings {
 	}
 
 	/**
+	 * Render the Presets tab content.
+	 *
+	 * @param string $nonce Nonce value.
+	 * @param string $mode  'apply' or 'remove'.
+	 * @return string HTML output.
+	 */
+	private function render_presets_tab( $nonce, $mode = 'apply' ) {
+		$links   = new Easy_Symlinks_Functions();
+		$presets = $links->get_presets();
+		$html    = '';
+
+		// Show SFTP mode warning on Pantheon if not writable.
+		$env = $links->detect_environment();
+		if ( 'pantheon' === $env['type'] && ! $env['writable'] ) {
+			$html .= '<div class="notice notice-warning" style="padding:12px 16px;margin:0 0 16px;">';
+			$html .= '<p style="margin:0;"><strong>' . esc_html__( 'Warning:', 'easy-symlinks' ) . '</strong> ';
+			$html .= esc_html__( 'Filesystem is not writable. Switch to SFTP mode in the Pantheon dashboard before applying or removing presets.', 'easy-symlinks' );
+			$html .= '</p></div>';
+		}
+
+		if ( empty( $presets ) ) {
+			$html .= '<p>' . esc_html__( 'No plugins detected that need symlinks. Install and activate a supported plugin (e.g. Wordfence) to see presets here.', 'easy-symlinks' ) . '</p>';
+			return $html;
+		}
+
+		$is_remove    = ( 'remove' === $mode );
+		$nonce_action = $is_remove ? 'caes_remove_presets' : 'caes_apply_presets';
+		$form_action  = $is_remove ? 'remove_presets' : 'apply_presets';
+		$button_text  = $is_remove ? __( 'Remove Selected Presets', 'easy-symlinks' ) : __( 'Apply Selected Presets', 'easy-symlinks' );
+		$button_class = $is_remove ? 'button-primary caes-submit-delete' : 'button-primary';
+
+		$html .= '<form method="post" action="">' . "\n";
+		$html .= wp_nonce_field( $nonce_action, 'caes_presets_nonce', true, false );
+		$html .= '<input type="hidden" name="caes_action" value="' . esc_attr( $form_action ) . '" />' . "\n";
+
+		$homepath = $links->get_wp_homepath();
+
+		foreach ( $presets as $key => $preset ) {
+			$html .= '<div style="margin-bottom:24px;padding:16px;border:1px solid #c3c4c7;background:#f6f7f7;">' . "\n";
+			$html .= '<label style="display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;margin-bottom:12px;">';
+			$html .= '<input type="checkbox" name="caes_presets[]" value="' . esc_attr( $key ) . '" />';
+			$html .= esc_html( $preset['name'] );
+			$html .= '</label>' . "\n";
+
+			$html .= '<table style="width:100%;border-collapse:collapse;">';
+			$html .= '<tr style="border-bottom:1px solid #ddd;"><th style="text-align:left;padding:6px 8px;font-size:13px;color:#50575e;">Target</th><th style="text-align:left;padding:6px 8px;font-size:13px;color:#50575e;">Link</th><th style="text-align:left;padding:6px 8px;font-size:13px;color:#50575e;">Status</th></tr>';
+
+			foreach ( $preset['links'] as $pair ) {
+				$full_link = $homepath . $pair['link'];
+				if ( is_link( $full_link ) ) {
+					$status = '<span style="color:#00a32a;">&#10003; Symlinked</span>';
+				} elseif ( file_exists( $full_link ) ) {
+					$status_text = $is_remove ? 'Exists (not a symlink)' : 'Exists (will be moved &amp; symlinked)';
+					$status      = '<span style="color:#dba617;">' . $status_text . '</span>';
+				} else {
+					$status = '<span style="color:#646970;">Not created</span>';
+				}
+
+				$html .= '<tr style="border-bottom:1px solid #eee;">';
+				$html .= '<td style="padding:6px 8px;font-family:monospace;font-size:13px;">' . esc_html( $pair['target'] ) . '</td>';
+				$html .= '<td style="padding:6px 8px;font-family:monospace;font-size:13px;">' . esc_html( $pair['link'] ) . '</td>';
+				$html .= '<td style="padding:6px 8px;font-size:13px;">' . $status . '</td>';
+				$html .= '</tr>';
+			}
+
+			$html .= '</table>';
+			$html .= '</div>' . "\n";
+		}
+
+		$html .= '<p class="submit"><input name="Submit" type="submit" class="' . esc_attr( $button_class ) . '" value="' . esc_attr( $button_text ) . '" /></p>' . "\n";
+		$html .= '</form>' . "\n";
+
+		return $html;
+	}
+
+	/**
 	 * Load settings page content.
 	 *
 	 * @return void
@@ -447,7 +535,7 @@ class Easy_Symlinks_Settings {
 				// Set tab class.
 				$class = 'caes-tab';
 				if ( ! isset( $_GET['tab'] ) ) {
-					$button_label = 'Save Symlink';
+					$button_label = 'Apply Selected Presets';
 					if ( 0 === $c ) {
 						$class .= ' caes-tab-active';
 					}
@@ -458,6 +546,10 @@ class Easy_Symlinks_Settings {
 							$button_label = 'Delete Symlink';
 						} elseif ( 'settings' === $tab ) {
 							$button_label = 'Save Settings';
+						} elseif ( 'presets' === $tab ) {
+							$button_label = 'Apply Selected Presets';
+						} elseif ( 'remove_presets' === $tab ) {
+							$button_label = 'Remove Selected Presets';
 						} else {
 							$button_label = 'Save Symlink';
 						}
@@ -488,9 +580,13 @@ class Easy_Symlinks_Settings {
 			$html .= '</div>' . "\n";
 		}
 
+		if ( 'presets' === $tab || ( '' === $tab && ! isset( $_GET['tab'] ) ) ) {
+			$html .= $this->render_presets_tab( $nonce, 'apply' );
+		} elseif ( 'remove_presets' === $tab ) {
+			$html .= $this->render_presets_tab( $nonce, 'remove' );
+		} else {
 			$html .= '<form method="post" action="options.php" enctype="multipart/form-data">' . "\n";
 
-				// Get settings fields.
 				ob_start();
 				settings_fields( $this->parent->token . '_settings' );
 				do_settings_sections( $this->parent->token . '_settings' );
@@ -500,12 +596,13 @@ class Easy_Symlinks_Settings {
 					$html .= '<input type="hidden" name="caes_nonce" id="caes_nonce" value="' . esc_html( $nonce ) . '" />';
 					$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
 					$submit_class = 'button-primary';
-		if ( 'delete' === $tab ) {
-			$submit_class .= ' caes-submit-delete';
-		}
+			if ( 'delete' === $tab ) {
+				$submit_class .= ' caes-submit-delete';
+			}
 					$html .= '<input name="Submit" type="submit" class="' . esc_attr( $submit_class ) . '" value="' . esc_attr( $button_label ) . '" />' . "\n";
 				$html     .= '</p>' . "\n";
 			$html         .= '</form>' . "\n";
+		}
 		$html             .= '</div>' . "\n";
 		$html             .= '</div>' . "\n";
 

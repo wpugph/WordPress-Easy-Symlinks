@@ -175,6 +175,119 @@ class Easy_Symlinks {
 	}
 
 	/**
+	 * Apply preset symlinks.
+	 *
+	 * @return void
+	 */
+	public function apply_presets() {
+		if ( ! isset( $_POST['caes_action'] ) || 'apply_presets' !== $_POST['caes_action'] ) {
+			return;
+		}
+
+		if ( ! isset( $_POST['caes_presets_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['caes_presets_nonce'] ) ), 'caes_apply_presets' ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$links   = new Easy_Symlinks_Functions();
+		$selected = isset( $_POST['caes_presets'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['caes_presets'] ) ) : array();
+
+		if ( empty( $selected ) ) {
+			add_settings_error( 'SymlinkError', 'no_presets', __( 'No presets selected. Please check at least one plugin preset to apply.', 'easy-symlinks' ), 'error' );
+			return;
+		}
+
+		$total_created   = 0;
+		$total_converted = 0;
+		$total_skipped   = 0;
+		$total_failed    = 0;
+
+		foreach ( $selected as $preset_key ) {
+			$result           = $links->apply_preset( $preset_key );
+			$total_created   += $result['created'];
+			$total_converted += $result['converted'];
+			$total_skipped   += $result['skipped'];
+			$total_failed    += $result['failed'];
+		}
+
+		$messages = array();
+		if ( $total_created > 0 ) {
+			/* translators: %d: number of symlinks created */
+			$messages[] = sprintf( _n( '%d symlink created', '%d symlinks created', $total_created, 'easy-symlinks' ), $total_created );
+		}
+		if ( $total_converted > 0 ) {
+			/* translators: %d: number of files converted to symlinks */
+			$messages[] = sprintf( _n( '%d converted (moved existing files to target)', '%d converted (moved existing files to target)', $total_converted, 'easy-symlinks' ), $total_converted );
+		}
+		if ( $total_skipped > 0 ) {
+			/* translators: %d: number of symlinks skipped */
+			$messages[] = sprintf( _n( '%d skipped (already a symlink)', '%d skipped (already symlinks)', $total_skipped, 'easy-symlinks' ), $total_skipped );
+		}
+		if ( $total_failed > 0 ) {
+			/* translators: %d: number of symlinks that failed */
+			$messages[] = sprintf( _n( '%d failed', '%d failed', $total_failed, 'easy-symlinks' ), $total_failed );
+		}
+
+		$type = $total_failed > 0 ? 'error' : 'updated';
+		add_settings_error( 'SymlinkError', 'presets_applied', implode( '. ', $messages ) . '.', $type );
+	}
+
+	/**
+	 * Remove preset symlinks.
+	 *
+	 * @return void
+	 */
+	public function remove_presets() {
+		if ( ! isset( $_POST['caes_action'] ) || 'remove_presets' !== $_POST['caes_action'] ) {
+			return;
+		}
+
+		if ( ! isset( $_POST['caes_presets_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['caes_presets_nonce'] ) ), 'caes_remove_presets' ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$links    = new Easy_Symlinks_Functions();
+		$selected = isset( $_POST['caes_presets'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['caes_presets'] ) ) : array();
+
+		if ( empty( $selected ) ) {
+			add_settings_error( 'SymlinkError', 'no_presets', __( 'No presets selected. Please check at least one plugin preset to remove.', 'easy-symlinks' ), 'error' );
+			return;
+		}
+
+		$total_removed = 0;
+		$total_skipped = 0;
+
+		foreach ( $selected as $preset_key ) {
+			$result         = $links->remove_preset( $preset_key );
+			$total_removed += $result['removed'];
+			$total_skipped += $result['skipped'];
+		}
+
+		$messages = array();
+		if ( $total_removed > 0 ) {
+			/* translators: %d: number of symlinks removed */
+			$messages[] = sprintf( _n( '%d symlink removed', '%d symlinks removed', $total_removed, 'easy-symlinks' ), $total_removed );
+		}
+		if ( $total_skipped > 0 ) {
+			/* translators: %d: number of symlinks skipped */
+			$messages[] = sprintf( _n( '%d skipped (not a symlink)', '%d skipped (not symlinks)', $total_skipped, 'easy-symlinks' ), $total_skipped );
+		}
+
+		if ( empty( $messages ) ) {
+			$messages[] = __( 'No symlinks to remove.', 'easy-symlinks' );
+		}
+
+		add_settings_error( 'SymlinkError', 'presets_removed', implode( '. ', $messages ) . '.', 'updated' );
+	}
+
+	/**
 	 * Load admin Javascript.
 	 *
 	 * @access  public
@@ -279,7 +392,7 @@ class Easy_Symlinks {
 	 * @param string $file File constructor.
 	 * @param string $version Plugin version.
 	 */
-	public function __construct( $file = '', $version = '1.0.5' ) {
+	public function __construct( $file = '', $version = '2.0.0' ) {
 		$this->version = $version;
 		$this->token   = 'easy_symlinks';
 
@@ -305,6 +418,8 @@ class Easy_Symlinks {
 
 		add_action( 'admin_init', array( $this, 'savenew' ), 99999999 );
 		add_action( 'admin_init', array( $this, 'deletelink' ), 99999999 );
+		add_action( 'admin_init', array( $this, 'apply_presets' ), 99999999 );
+		add_action( 'admin_init', array( $this, 'remove_presets' ), 99999999 );
 
 	} // End __construct ()
 
@@ -321,7 +436,7 @@ class Easy_Symlinks {
 	 * @since 1.0.0
 	 * @static
 	 */
-	public static function instance( $file = '', $version = '1.0.5' ) {
+	public static function instance( $file = '', $version = '2.0.0' ) {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self( $file, $version );
 		}
