@@ -1,0 +1,28 @@
+name: My Sample Docker test
+
+on: pull_request
+
+jobs:
+  phpcs:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup SSH access to Pantheon
+      run: |
+        # define settings here
+        if [ -d ~/vip-go-ci-tools ] ; then
+          bash ~/vip-go-ci-tools/vip-go-ci/tools-init.sh
+        else
+          wget https://raw.githubusercontent.com/Automattic/vip-go-ci/master/tools-init.sh -O tools-init.sh && \
+          bash tools-init.sh && \
+          rm -f tools-init.sh
+        fi
+        php ~/vip-go-ci-tools/vip-go-ci/vip-go-ci.php --repo-owner="$REPO_ORG" --repo-name="$REPO_NAME" --commit="$BUILD_VCS_NUMBER"  --token="$REPO_TOKEN" --local-git-repo="%system.teamcity.build.checkoutDir%" --phpcs="$PHPCS_ENABLED" --lint="$LINTING_ENABLED"  --phpcs-path="$HOME/vip-go-ci-tools/phpcs/bin/phpcs"
+
+# learn how to build own Docker
+# execute scripts in it
+# add phpcs
+# build steps
+# slackbot integration
